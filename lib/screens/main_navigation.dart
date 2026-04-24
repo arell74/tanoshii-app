@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tanoshii_app/screens/flashcard/flashcard_screen.dart';
 import 'home/home_screen.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -23,7 +24,13 @@ class _MainNavigationState extends State<MainNavigation> {
     final List<Widget> pages = [
       const HomeScreen(),
       
-      const Center(child: Text('Halaman Flashcard')),
+      FlashcardScreen(
+        onBack: () {
+          setState(() {
+            _selectedIndex = 0;
+          });
+        },
+      ),
       const Center(child: Text('Halaman Quiz')),
       const Center(child: Text('Halaman Chat AI')),
       const Center(child: Text('Halaman Progres')),
