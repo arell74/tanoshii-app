@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tanoshii_app/screens/flashcard/flashcard_screen.dart';
+import '/screens/chat_bot/chat_bot_screen.dart';
+import '/screens/flashcard/flashcard_screen.dart';
+import '/screens/quiz/quiz_screen.dart';
 import 'home/home_screen.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -31,8 +33,8 @@ class _MainNavigationState extends State<MainNavigation> {
           });
         },
       ),
-      const Center(child: Text('Halaman Quiz')),
-      const Center(child: Text('Halaman Chat AI')),
+      const QuizScreen(),
+      const ChatBotScreen(),
       const Center(child: Text('Halaman Progres')),
     ];
 
