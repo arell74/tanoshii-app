@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tanoshii_app/screens/auth/login_screen.dart';
 import '/screens/main_navigation.dart';
 import '../theme/app_theme.dart'; 
 
@@ -117,7 +118,8 @@ class SplashScreen extends StatelessWidget {
                   // TODO: Navigasi ke halaman Home/Dashboard
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const MainNavigation()),
+                    // MaterialPageRoute(builder: (context) => const MainNavigation()),
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
                   );
                 },
                 style: ElevatedButton.styleFrom(

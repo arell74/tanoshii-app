@@ -39,14 +39,14 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         Text('おはようございます', 
                           style: GoogleFonts.spaceMono(color: Colors.white54, fontSize: 10)),
-                        Text('Halo, Novaaa 👋', 
+                        Text('Halo, Farelll 👋', 
                           style: GoogleFonts.dmSans(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                       ],
                     ),
-                    const CircleAvatar(
-                      backgroundColor: vermillion,
-                      child: Text('N', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                    )
+                    // const CircleAvatar(
+                    CircleAvatar(
+                      backgroundImage: AssetImage('assets/images/boruto.jpeg'),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
