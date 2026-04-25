@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tanoshii_app/screens/progress/progress_screen.dart';
 import '/screens/chat_bot/chat_bot_screen.dart';
 import '/screens/flashcard/flashcard_screen.dart';
 import '/screens/quiz/quiz_screen.dart';
@@ -35,7 +36,7 @@ class _MainNavigationState extends State<MainNavigation> {
       ),
       const QuizScreen(),
       const ChatBotScreen(),
-      const Center(child: Text('Halaman Progres')),
+      const ProgressScreen( ),
     ];
 
     return Scaffold(
