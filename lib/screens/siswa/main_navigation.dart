@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tanoshii_app/screens/siswa/progress/progress_screen.dart';
-import 'siswa/chat_bot/chat_bot_screen.dart';
-import 'siswa/flashcard/flashcard_screen.dart';
-import 'siswa/quiz/quiz_screen.dart';
-import 'siswa/home/home_screen.dart';
+import 'chat_bot/chat_bot_screen.dart';
+import 'flashcard/flashcard_screen.dart';
+import 'quiz/quiz_screen.dart';
+import 'home/home_screen.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({Key? key}) : super(key: key);

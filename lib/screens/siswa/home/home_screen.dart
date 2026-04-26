@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../profile/profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -44,9 +45,20 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                     // const CircleAvatar(
-                    CircleAvatar(
-                      backgroundImage: AssetImage('assets/images/boruto.jpeg'),
-                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProfileScreen(),
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(50),
+                      child: CircleAvatar(
+                        backgroundImage: AssetImage('assets/images/boruto.jpeg'),
+                      ),
+                    )
                   ],
                 ),
                 const SizedBox(height: 20),

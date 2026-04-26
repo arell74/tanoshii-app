@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../main_navigation.dart';
+import '../sensei/main_navigation.dart';
+import '../siswa/main_navigation.dart';
 // import '../sensei_navigation.dart'; // Nanti kita buat file ini
 
 class LoginScreen extends StatefulWidget {
@@ -104,12 +105,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // DUMMY LOGIC UNTUK DEMO
-                    if (selectedRole == 'Pelajar') {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainNavigation()));
+                    if (selectedRole.contains('Pelajar')) {
+                      Navigator.pushReplacement(
+                        context, 
+                        MaterialPageRoute(builder: (context) => const MainNavigation())
+                      );
                     } else {
-                      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const SenseiNavigation()));
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Halaman Sensei belum dibuat!')));
+                      Navigator.pushReplacement(
+                        context, 
+                        MaterialPageRoute(builder: (context) => const SenseiNavigation())
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(

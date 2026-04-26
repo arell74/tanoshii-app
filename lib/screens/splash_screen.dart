@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tanoshii_app/screens/auth/login_screen.dart';
-import '/screens/main_navigation.dart';
+import 'siswa/main_navigation.dart';
 import '../theme/app_theme.dart'; 
 
 class SplashScreen extends StatelessWidget {
