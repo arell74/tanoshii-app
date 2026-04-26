@@ -1,7 +1,14 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+// 1. Buat model data sederhana untuk Pesan
+class ChatMessage {
+  final String text;
+  final bool isUser;
+  final String time;
+
+  ChatMessage({required this.text, required this.isUser, required this.time});
+}
 
 class ChatBotScreen extends StatefulWidget {
   const ChatBotScreen({Key? key}) : super(key: key);
@@ -12,11 +19,78 @@ class ChatBotScreen extends StatefulWidget {
 
 class _AiSenseiScreenState extends State<ChatBotScreen> {
   final TextEditingController _chatController = TextEditingController();
+  final ScrollController _scrollController =
+      ScrollController(); // Untuk auto-scroll ke bawah
+
+  // 2. State untuk menyimpan daftar pesan dan status loading
+  bool _isTyping = false;
+  final List<ChatMessage> _messages = [
+    ChatMessage(
+      text:
+          'おはようございます！ Selamat pagi! Hari ini kita akan belajar apa? Kamu bisa tanya apa saja tentang bahasa Jepang 😊',
+      isUser: false,
+      time: '09:14',
+    ),
+  ];
 
   @override
   void dispose() {
     _chatController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  // 3. Fungsi untuk mengirim pesan
+  void _sendMessage() {
+    if (_chatController.text.trim().isEmpty) return;
+
+    String userText = _chatController.text.trim();
+    String currentTime =
+        "${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}";
+
+    setState(() {
+      // Masukkan pesan user ke daftar
+      _messages.add(
+        ChatMessage(text: userText, isUser: true, time: currentTime),
+      );
+      _chatController.clear();
+      _isTyping = true; // Munculkan indikator Sensei sedang mengetik
+    });
+
+    _scrollToBottom();
+
+    // 4. Simulasi jeda waktu AI berpikir (2 detik), lalu AI membalas
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          _isTyping = false;
+          // Balasan dummy (nanti ini diganti dengan respon dari API beneran)
+          _messages.add(
+            ChatMessage(
+              text:
+                  'Itu pertanyaan yang bagus! Sayangnya saat ini otak AI saya belum disambungkan ke server sungguhan. Tunggu sampai developnya selesai yaa! ~Raiden cwan',
+              isUser: false,
+              time:
+                  "${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}",
+            ),
+          );
+        });
+        _scrollToBottom();
+      }
+    });
+  }
+
+  // Fungsi untuk menggulir layar otomatis ke pesan terbaru
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   @override
@@ -25,7 +99,7 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
     const Color vermillion = Color(0xFFD94F3D);
     const Color gold = Color(0xFFC9A84C);
     const Color indigo = Color(0xFF3D5A8A);
-    const Color bgColor = Color(0xFFF4F1EC); // Sesuai warna background s-ai
+    const Color bgColor = Color(0xFFF4F1EC);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -47,10 +121,18 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: [gold, vermillion], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                    gradient: const LinearGradient(
+                      colors: [gold, vermillion],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     shape: BoxShape.circle,
                     boxShadow: [
-                      BoxShadow(color: gold.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 4))
+                      BoxShadow(
+                        color: gold.withOpacity(0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
                     ],
                   ),
                   alignment: Alignment.center,
@@ -62,121 +144,108 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Info Header
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Raiden AI', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                      Text('先生 · AI BAHASA JEPANG', style: GoogleFonts.spaceMono(color: Colors.white.withOpacity(0.5), fontSize: 10, letterSpacing: 1)),
+                      Text(
+                        'Raiden AI',
+                        style: GoogleFonts.dmSans(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        '先生 · AI BAHASA JEPANG',
+                        style: GoogleFonts.spaceMono(
+                          color: Colors.white.withOpacity(0.5),
+                          fontSize: 10,
+                          letterSpacing: 1,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                // Online Indicator
                 Container(
                   width: 10,
                   height: 10,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4ADE80), // Green light
+                    color: const Color(0xFF4ADE80),
                     shape: BoxShape.circle,
                     boxShadow: [
-                      BoxShadow(color: const Color(0xFF4ADE80).withOpacity(0.6), blurRadius: 6)
+                      BoxShadow(
+                        color: const Color(0xFF4ADE80).withOpacity(0.6),
+                        blurRadius: 6,
+                      ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ),
 
           // ── CHAT BODY SECTION ──
           Expanded(
-            child: ListView(
+            child: ListView.builder(
+              controller: _scrollController,
               padding: const EdgeInsets.all(16),
-              children: [
-                // Date separator
-                Center(
-                  child: Text('HARI INI, 02:40', style: GoogleFonts.spaceMono(fontSize: 10, color: ink.withOpacity(0.3), letterSpacing: 1)),
-                ),
-                const SizedBox(height: 16),
-
-                // AI Chat Bubble 1
-                _buildChatBubble(
-                  isUser: false,
-                  avatarLabel: '先',
-                  time: '09:40',
-                  child: Text.rich(
-                    TextSpan(
-                      style: GoogleFonts.dmSans(fontSize: 13, color: ink, height: 1.5),
-                      children: const [
-                        TextSpan(text: 'おはようございます！ Selamat pagi rell! Hari ini kita akan belajar apa? Kamu bisa tanya apa saja tentang aksara atau bahasa Jepang 😊'),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // User Chat Bubble
-                _buildChatBubble(
-                  isUser: true,
-                  avatarLabel: 'F',
-                  time: '02:41',
-                  child: Text.rich(
-                    TextSpan(
-                      style: GoogleFonts.dmSans(fontSize: 13, color: Colors.white, height: 1.5),
+              itemCount:
+                  _messages.length +
+                  (_isTyping ? 1 : 0), // Tambah 1 jika sedang mengetik
+              itemBuilder: (context, index) {
+                // Menampilkan indikator typing di urutan paling bawah
+                if (index == _messages.length && _isTyping) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8.0, bottom: 16.0),
+                    child: Row(
                       children: [
-                        const TextSpan(text: 'Sensei, apa bedanya '),
-                        TextSpan(text: 'は', style: GoogleFonts.notoSerifJp(color: const Color(0xFFE8CC7E), fontSize: 16, fontWeight: FontWeight.bold)), // goldLight
-                        const TextSpan(text: ' dan '),
-                        TextSpan(text: 'わ', style: GoogleFonts.notoSerifJp(color: const Color(0xFFE8CC7E), fontSize: 16, fontWeight: FontWeight.bold)),
-                        const TextSpan(text: '?'),
+                        Text(
+                          'Sensei sedang mengetik...',
+                          style: GoogleFonts.dmSans(
+                            fontSize: 12,
+                            color: ink.withOpacity(0.5),
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 12),
+                  );
+                }
 
-                // AI Chat Bubble 2
-                _buildChatBubble(
-                  isUser: false,
-                  avatarLabel: '先',
-                  time: '02:41',
-                  child: Text.rich(
-                    TextSpan(
-                      style: GoogleFonts.dmSans(fontSize: 13, color: ink, height: 1.5),
-                      children: [
-                        const TextSpan(text: 'Pertanyaan bagus! '),
-                        TextSpan(text: 'は (ha)', style: GoogleFonts.notoSerifJp(color: vermillion, fontSize: 15, fontWeight: FontWeight.bold)),
-                        const TextSpan(text: ' adalah konsonan biasa, tapi kalau jadi partikel topik, dibacanya '),
-                        const TextSpan(text: '"wa"', style: TextStyle(fontWeight: FontWeight.bold)),
-                        const TextSpan(text: '. Contoh: 私'),
-                        TextSpan(text: 'は', style: GoogleFonts.notoSerifJp(color: vermillion, fontSize: 15, fontWeight: FontWeight.bold)),
-                        const TextSpan(text: '学生 (Watashi '),
-                        const TextSpan(text: 'wa', style: TextStyle(fontWeight: FontWeight.bold)),
-                        const TextSpan(text: ' gakusei). Sementara '),
-                        TextSpan(text: 'わ (wa)', style: GoogleFonts.notoSerifJp(color: vermillion, fontSize: 15, fontWeight: FontWeight.bold)),
-                        const TextSpan(text: ' hanya dipakai untuk kata biasa.'),
-                      ],
+                final msg = _messages[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: _buildChatBubble(
+                    isUser: msg.isUser,
+                    avatar: msg.isUser
+                        ? CircleAvatar(
+                            radius: 14,
+                            backgroundColor: const Color(0xFF3D5A8A),
+                            child: const Icon(
+                              Icons.person,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                          )
+                        : CircleAvatar(
+                            radius: 14,
+                            backgroundImage: const AssetImage(
+                              'assets/images/raii.jpg',
+                            ),
+                          ),
+                    time: msg.time,
+                    child: Text(
+                      msg.text,
+                      style: GoogleFonts.dmSans(
+                        fontSize: 13,
+                        color: msg.isUser ? Colors.white : ink,
+                        height: 1.5,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-
-                // Quick Chips Row
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _buildQuickChip('Contoh kalimat', ink),
-                      const SizedBox(width: 8),
-                      _buildQuickChip('Latihan soal', ink),
-                      const SizedBox(width: 8),
-                      _buildQuickChip('Jelaskan lagi', ink),
-                      const SizedBox(width: 8),
-                      _buildQuickChip('Raiden lagi apa?', ink),
-                    ],
-                  ),
-                )
-              ],
+                );
+              },
             ),
           ),
 
@@ -201,11 +270,18 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                       style: GoogleFonts.dmSans(fontSize: 13, color: ink),
                       decoration: InputDecoration(
                         hintText: 'Tanya Sensei...',
-                        hintStyle: GoogleFonts.dmSans(fontSize: 13, color: ink.withOpacity(0.4)),
+                        hintStyle: GoogleFonts.dmSans(
+                          fontSize: 13,
+                          color: ink.withOpacity(0.4),
+                        ),
                         border: InputBorder.none,
                         isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                        ),
                       ),
+                      onSubmitted: (_) =>
+                          _sendMessage(), // Bisa kirim pakai tombol enter di keyboard
                     ),
                   ),
                 ),
@@ -213,29 +289,35 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                 Container(
                   width: 40,
                   height: 40,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [vermillion, const Color(0xFFB03828)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [vermillion, Color(0xFFB03828)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.send_rounded, color: Colors.white, size: 18),
-                    onPressed: () {
-                      // TODO: Implement send message logic
-                    },
+                    icon: const Icon(
+                      Icons.send_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                    onPressed: _sendMessage, // Panggil fungsi kirim
                   ),
-                )
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
-  // Helper Widget: Chat Bubble
+  // Helper Widget: Chat Bubble (Tetap sama seperti sebelumnya)
   Widget _buildChatBubble({
     required bool isUser,
-    required String avatarLabel,
+    required Widget avatar,
     required String time,
     required Widget child,
   }) {
@@ -245,31 +327,29 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
     const Color gold = Color(0xFFC9A84C);
 
     return Row(
-      mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+      mainAxisAlignment: isUser
+          ? MainAxisAlignment.end
+          : MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         if (!isUser) ...[
-          // AI Avatar Smal
           Container(
             width: 28,
             height: 28,
             decoration: const BoxDecoration(
+              gradient: LinearGradient(colors: [gold, vermillion]),
               shape: BoxShape.circle,
-              // Hapus gradient jika ingin gambar full
             ),
-            child: ClipOval(
-              child: Image.asset(
-                'assets/images/raii.jpg',
-                fit: BoxFit.cover,
-              ),
-            ),
+            alignment: Alignment.center,
+            child: avatar,
           ),
           const SizedBox(width: 8),
         ],
-        
         Flexible(
           child: Column(
-            crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            crossAxisAlignment: isUser
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
             children: [
               Container(
                 padding: const EdgeInsets.all(14),
@@ -278,24 +358,38 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                   borderRadius: BorderRadius.only(
                     topLeft: const Radius.circular(16),
                     topRight: const Radius.circular(16),
-                    bottomLeft: isUser ? const Radius.circular(16) : const Radius.circular(4),
-                    bottomRight: isUser ? const Radius.circular(4) : const Radius.circular(16),
+                    bottomLeft: isUser
+                        ? const Radius.circular(16)
+                        : const Radius.circular(4),
+                    bottomRight: isUser
+                        ? const Radius.circular(4)
+                        : const Radius.circular(16),
                   ),
-                  boxShadow: isUser ? [] : [
-                    BoxShadow(color: ink.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))
-                  ],
+                  boxShadow: isUser
+                      ? []
+                      : [
+                          BoxShadow(
+                            color: ink.withOpacity(0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                 ),
                 child: child,
               ),
               const SizedBox(height: 4),
-              Text(time, style: GoogleFonts.spaceMono(fontSize: 9, color: ink.withOpacity(0.3))),
+              Text(
+                time,
+                style: GoogleFonts.spaceMono(
+                  fontSize: 9,
+                  color: ink.withOpacity(0.3),
+                ),
+              ),
             ],
           ),
         ),
-
         if (isUser) ...[
           const SizedBox(width: 8),
-          // User Avatar Small
           Container(
             width: 28,
             height: 28,
@@ -304,26 +398,10 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: Text(avatarLabel, style: GoogleFonts.dmSans(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
+            child: avatar,
           ),
         ],
       ],
-    );
-  }
-
-  // Helper Widget: Quick Chip
-  Widget _buildQuickChip(String label, Color ink) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: ink.withOpacity(0.1)),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: ink.withOpacity(0.02), blurRadius: 2, offset: const Offset(0, 1))
-        ],
-      ),
-      child: Text(label, style: GoogleFonts.dmSans(fontSize: 11, color: ink, fontWeight: FontWeight.bold)),
     );
   }
 }

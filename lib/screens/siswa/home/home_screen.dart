@@ -1,11 +1,32 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../profile/profile_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
+  // Fungsi untuk mengambil nama dari Firestore
+  Future<String> _getUserName() async {
+    try {
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        DocumentSnapshot doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .get();
+        if (doc.exists && doc.data() != null) {
+          return doc.get('name') ?? 'Pelajar';
+        }
+      }
+    } catch (e) {
+      print("Error mengambil nama: $e");
+    }
+    return 'Siswa';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +46,7 @@ class HomeScreen extends StatelessWidget {
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20)
+                bottomRight: Radius.circular(20),
               ),
               gradient: LinearGradient(
                 colors: [ink, inkSoft],
@@ -42,10 +63,39 @@ class HomeScreen extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('おはようございます', 
-                          style: GoogleFonts.spaceMono(color: Colors.white54, fontSize: 10)),
-                        Text('Halo, Farelll 👋', 
-                          style: GoogleFonts.dmSans(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                        Text(
+                          'おはようございます',
+                          style: GoogleFonts.spaceMono(
+                            color: Colors.white54,
+                            fontSize: 10,
+                          ),
+                        ),
+                        // ── KODE BARU: NAMA DINAMIS ──
+                        FutureBuilder<String>(
+                          future: _getUserName(),
+                          builder: (context, snapshot) {
+                            String displayName =
+                                'Memuat...'; // Teks sementara saat loading
+
+                            if (snapshot.connectionState ==
+                                ConnectionState.done) {
+                              // Ambil datanya
+                              String fullName = snapshot.data ?? 'Siswa';
+
+                              // Opsional: Ambil kata pertama saja agar tidak kepanjangan di layar
+                              displayName = fullName.split(' ')[0];
+                            }
+
+                            return Text(
+                              'Halo, $displayName 👋',
+                              style: GoogleFonts.dmSans(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          },
+                        ),
                       ],
                     ),
                     // const CircleAvatar(
@@ -60,15 +110,20 @@ class HomeScreen extends StatelessWidget {
                       },
                       borderRadius: BorderRadius.circular(50),
                       child: CircleAvatar(
-                        backgroundImage: AssetImage('assets/images/boruto.jpeg'),
+                        backgroundImage: AssetImage(
+                          'assets/images/boruto.jpeg',
+                        ),
                       ),
-                    )
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
                 // Streak Bar
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: gold.withOpacity(0.12),
                     border: Border.all(color: gold.withOpacity(0.2)),
@@ -78,9 +133,23 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       const Text('🔥', style: TextStyle(fontSize: 18)),
                       const SizedBox(width: 8),
-                      Text('Streak Harian', style: GoogleFonts.dmSans(color: gold, fontWeight: FontWeight.bold, fontSize: 12)),
+                      Text(
+                        'Streak Harian',
+                        style: GoogleFonts.dmSans(
+                          color: gold,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
                       const Spacer(),
-                      Text('7 hari', style: GoogleFonts.spaceMono(color: gold, fontWeight: FontWeight.bold, fontSize: 14)),
+                      Text(
+                        '7 hari',
+                        style: GoogleFonts.spaceMono(
+                          color: gold,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -89,8 +158,20 @@ class HomeScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('XP 999 / 1000', style: GoogleFonts.spaceMono(color: Colors.white54, fontSize: 10)),
-                    Text('Level 3 · N5', style: GoogleFonts.spaceMono(color: Colors.white54, fontSize: 10)),
+                    Text(
+                      'XP 999 / 1000',
+                      style: GoogleFonts.spaceMono(
+                        color: Colors.white54,
+                        fontSize: 10,
+                      ),
+                    ),
+                    Text(
+                      'Level 3 · N5',
+                      style: GoogleFonts.spaceMono(
+                        color: Colors.white54,
+                        fontSize: 10,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -139,19 +220,40 @@ class HomeScreen extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('SEDANG DIPELAJARI', style: GoogleFonts.spaceMono(color: Colors.white60, fontSize: 10)),
+                          Text(
+                            'SEDANG DIPELAJARI',
+                            style: GoogleFonts.spaceMono(
+                              color: Colors.white60,
+                              fontSize: 10,
+                            ),
+                          ),
                           const SizedBox(height: 4),
-                          Text('Hiragana Baris き・さ', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                          Text(
+                            'Hiragana Baris き・さ',
+                            style: GoogleFonts.dmSans(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           const SizedBox(height: 16),
                           LinearProgressIndicator(
                             value: 0.4,
                             backgroundColor: Colors.white.withOpacity(0.15),
-                            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFE8CC7E)), // gold light
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                              Color(0xFFE8CC7E),
+                            ), // gold light
                             minHeight: 4,
                             borderRadius: BorderRadius.circular(2),
                           ),
                           const SizedBox(height: 8),
-                          Text('▶ LANJUTKAN → 12/46', style: GoogleFonts.spaceMono(color: const Color(0xFFE8CC7E), fontSize: 10)),
+                          Text(
+                            '▶ LANJUTKAN → 12/46',
+                            style: GoogleFonts.spaceMono(
+                              color: const Color(0xFFE8CC7E),
+                              fontSize: 10,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -163,17 +265,49 @@ class HomeScreen extends StatelessWidget {
                 _buildSectionLabel('Modul Belajar'),
                 Row(
                   children: [
-                    Expanded(child: _buildModuleCard('あ', 'Hiragana', '46 karakter', const Color(0xFFFDE0DC), vermillion)),
+                    Expanded(
+                      child: _buildModuleCard(
+                        'あ',
+                        'Hiragana',
+                        '46 karakter',
+                        const Color(0xFFFDE0DC),
+                        vermillion,
+                      ),
+                    ),
                     const SizedBox(width: 12),
-                    Expanded(child: _buildModuleCard('ア', 'Katakana', '46 karakter', const Color(0xFFDCE8FD), const Color(0xFF6B8EC9))),
+                    Expanded(
+                      child: _buildModuleCard(
+                        'ア',
+                        'Katakana',
+                        '46 karakter',
+                        const Color(0xFFDCE8FD),
+                        const Color(0xFF6B8EC9),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Expanded(child: _buildModuleCard('字', 'Kanji N5', '103 karakter', const Color(0xFFDDF0E8), const Color(0xFF4A7C6F))),
+                    Expanded(
+                      child: _buildModuleCard(
+                        '字',
+                        'Kanji N5',
+                        '103 karakter',
+                        const Color(0xFFDDF0E8),
+                        const Color(0xFF4A7C6F),
+                      ),
+                    ),
                     const SizedBox(width: 12),
-                    Expanded(child: _buildModuleCard('🤖', 'AI Sensei', 'Chat & tanya', const Color(0xFFFAF0D0), gold)),
+                    Expanded(
+                      child: _buildModuleCard(
+                        '🤖',
+                        'AI Sensei',
+                        'Chat & tanya',
+                        const Color(0xFFFAF0D0),
+                        gold,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -184,7 +318,10 @@ class HomeScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFFDF8EE), Color(0xFFF5EAD6)], // Cream gradient
+                      colors: [
+                        Color(0xFFFDF8EE),
+                        Color(0xFFF5EAD6),
+                      ], // Cream gradient
                     ),
                     borderRadius: BorderRadius.circular(18),
                   ),
@@ -198,18 +335,43 @@ class HomeScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         alignment: Alignment.center,
-                        child: Text('猫', style: GoogleFonts.notoSerifJp(color: gold, fontSize: 28)),
+                        child: Text(
+                          '猫',
+                          style: GoogleFonts.notoSerifJp(
+                            color: gold,
+                            fontSize: 28,
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('KANJI HARI INI', style: GoogleFonts.spaceMono(color: ink.withOpacity(0.5), fontSize: 10)),
+                            Text(
+                              'KANJI HARI INI',
+                              style: GoogleFonts.spaceMono(
+                                color: ink.withOpacity(0.5),
+                                fontSize: 10,
+                              ),
+                            ),
                             const SizedBox(height: 2),
-                            Text('猫 — Neko (Kucing)', style: GoogleFonts.dmSans(color: ink, fontSize: 16, fontWeight: FontWeight.bold)),
+                            Text(
+                              '猫 — Neko (Kucing)',
+                              style: GoogleFonts.dmSans(
+                                color: ink,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             const SizedBox(height: 4),
-                            Text('Stroke: 11 · Jōyō Kanji', style: GoogleFonts.dmSans(color: ink.withOpacity(0.6), fontSize: 12)),
+                            Text(
+                              'Stroke: 11 · Jōyō Kanji',
+                              style: GoogleFonts.dmSans(
+                                color: ink.withOpacity(0.6),
+                                fontSize: 12,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -242,7 +404,13 @@ class HomeScreen extends StatelessWidget {
   }
 
   // Helper function untuk membuat kotak Modul Belajar
-  Widget _buildModuleCard(String icon, String title, String subtitle, Color bgColor, Color dotColor) {
+  Widget _buildModuleCard(
+    String icon,
+    String title,
+    String subtitle,
+    Color bgColor,
+    Color dotColor,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -266,11 +434,30 @@ class HomeScreen extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(icon, style: GoogleFonts.notoSerifJp(fontSize: 24, color: const Color(0xFF1A1A2E))),
+              Text(
+                icon,
+                style: GoogleFonts.notoSerifJp(
+                  fontSize: 24,
+                  color: const Color(0xFF1A1A2E),
+                ),
+              ),
               const SizedBox(height: 12),
-              Text(title, style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF1A1A2E))),
+              Text(
+                title,
+                style: GoogleFonts.dmSans(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF1A1A2E),
+                ),
+              ),
               const SizedBox(height: 2),
-              Text(subtitle, style: GoogleFonts.spaceMono(fontSize: 9, color: const Color(0xFF1A1A2E).withOpacity(0.6))),
+              Text(
+                subtitle,
+                style: GoogleFonts.spaceMono(
+                  fontSize: 9,
+                  color: const Color(0xFF1A1A2E).withOpacity(0.6),
+                ),
+              ),
             ],
           ),
         ],

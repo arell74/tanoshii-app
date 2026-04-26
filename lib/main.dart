@@ -1,10 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '/screens/splash_screen.dart';
-import '/theme/app_theme.dart';
-import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
-
+import 'firebase_options.dart';
+import 'screens/splash_screen.dart';
+import 'theme/app_theme.dart';
 import 'screens/sensei/main_navigation.dart';
 import 'screens/siswa/main_navigation.dart';
 import 'services/auth_service.dart';

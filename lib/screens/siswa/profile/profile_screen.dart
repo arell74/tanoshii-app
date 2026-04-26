@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -5,6 +7,24 @@ import '../../auth/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
+
+  Future<String> _getUserName() async {
+    try {
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        DocumentSnapshot doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .get();
+        if (doc.exists && doc.data() != null) {
+          return doc.get('name') ?? 'Pelajar';
+        }
+      }
+    } catch (e) {
+      print("Error mengambil nama: $e");
+    }
+    return 'Siswa';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,24 +52,66 @@ class ProfileScreen extends StatelessWidget {
                       },
                       borderRadius: BorderRadius.circular(50),
                       child: CircleAvatar(
-                        backgroundImage: AssetImage('assets/images/boruto.jpeg'),
-                        
+                        backgroundImage: AssetImage(
+                          'assets/images/boruto.jpeg',
+                        ),
                       ),
-                    )
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Farel Fauzan', style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.bold, color: ink)),
-                        Text('farelfauzan@email.com', style: GoogleFonts.dmSans(fontSize: 12, color: ink.withOpacity(0.6))),
+                        FutureBuilder<String>(
+                          future: _getUserName(),
+                          builder: (context, snapshot) {
+                            String displayName =
+                                'Memuat...'; // Teks sementara saat loading
+
+                            if (snapshot.connectionState ==
+                                ConnectionState.done) {
+                              // Ambil datanya
+                              String fullName = snapshot.data ?? 'Siswa';
+                              displayName = fullName;
+                            }
+
+                            return Text(
+                              displayName,
+                              style: GoogleFonts.dmSans(
+                                color: ink,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          },
+                        ),
+                        Text(
+                          'farelfauzan@email.com',
+                          style: GoogleFonts.dmSans(
+                            fontSize: 12,
+                            color: ink.withOpacity(0.6),
+                          ),
+                        ),
                         const SizedBox(height: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(color: gold.withOpacity(0.2), borderRadius: BorderRadius.circular(4)),
-                          child: Text('Pelajar · Level 99', style: GoogleFonts.spaceMono(fontSize: 10, color: gold, fontWeight: FontWeight.bold)),
-                        )
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: gold.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'Pelajar · Level 99',
+                            style: GoogleFonts.spaceMono(
+                              fontSize: 10,
+                              color: gold,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -65,12 +127,16 @@ class ProfileScreen extends StatelessWidget {
                   _buildSectionTitle('Akun'),
                   _buildListTile(Icons.person_outline, 'Edit Profil', ink),
                   _buildListTile(Icons.lock_outline, 'Ubah Password', ink),
-                  
+
                   const SizedBox(height: 24),
                   _buildSectionTitle('Preferensi'),
                   _buildListTile(Icons.language, 'Bahasa (日本語)', ink),
-                  _buildListTile(Icons.notifications_active_outlined, 'Posisi Notifikasi (Acak Kanan & Kiri)', ink),
-                  
+                  _buildListTile(
+                    Icons.notifications_active_outlined,
+                    'Posisi Notifikasi (Acak Kanan & Kiri)',
+                    ink,
+                  ),
+
                   const SizedBox(height: 24),
                   _buildSectionTitle('Lainnya'),
                   _buildListTile(Icons.help_outline, 'Pusat Bantuan', ink),
@@ -93,7 +159,10 @@ class ProfileScreen extends StatelessWidget {
                         content: Text('Apakah yakin ingin logout?'),
                         actions: [
                           CupertinoDialogAction(
-                            child: Text('Tidak', style: TextStyle(color: Colors.blue),),
+                            child: Text(
+                              'Tidak',
+                              style: TextStyle(color: Colors.blue),
+                            ),
                             onPressed: () {
                               Navigator.of(context).pop(); // tutup dialog
                             },
@@ -118,11 +187,19 @@ class ProfileScreen extends StatelessWidget {
                     );
                   },
                   icon: const Icon(Icons.logout, color: vermillion),
-                  label: Text('Keluar Akun', style: GoogleFonts.dmSans(color: vermillion, fontWeight: FontWeight.bold)),
+                  label: Text(
+                    'Keluar Akun',
+                    style: GoogleFonts.dmSans(
+                      color: vermillion,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     side: const BorderSide(color: vermillion),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
@@ -138,7 +215,12 @@ class ProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8, left: 4),
       child: Text(
         title.toUpperCase(),
-        style: GoogleFonts.spaceMono(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF1A1A2E).withOpacity(0.4), letterSpacing: 1),
+        style: GoogleFonts.spaceMono(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: const Color(0xFF1A1A2E).withOpacity(0.4),
+          letterSpacing: 1,
+        ),
       ),
     );
   }
@@ -153,9 +235,21 @@ class ProfileScreen extends StatelessWidget {
       ),
       child: ListTile(
         leading: Icon(icon, color: ink.withOpacity(0.7), size: 22),
-        title: Text(title, style: GoogleFonts.dmSans(fontSize: 14, color: ink, fontWeight: FontWeight.w500)),
-        trailing: Icon(Icons.chevron_right, color: ink.withOpacity(0.3), size: 20),
-        onTap: () {}, // Tambahkan navigasi ke masing-masing halaman pengaturan di sini
+        title: Text(
+          title,
+          style: GoogleFonts.dmSans(
+            fontSize: 14,
+            color: ink,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        trailing: Icon(
+          Icons.chevron_right,
+          color: ink.withOpacity(0.3),
+          size: 20,
+        ),
+        onTap:
+            () {}, // Tambahkan navigasi ke masing-masing halaman pengaturan di sini
       ),
     );
   }
