@@ -1,9 +1,19 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '/screens/splash_screen.dart';
 import '/theme/app_theme.dart';
+import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main(){
-  runApp(NihonggoApp());
+import 'screens/sensei/main_navigation.dart';
+import 'screens/siswa/main_navigation.dart';
+import 'services/auth_service.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(const NihonggoApp());
 }
 
 class NihonggoApp extends StatelessWidget {
@@ -14,7 +24,35 @@ class NihonggoApp extends StatelessWidget {
     return MaterialApp(
       title: "Nihonggo APP",
       theme: AppTheme.lightTheme,
-      home: const SplashScreen(),
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasData) {
+            // Jika sudah login, kita perlu cek rolenya sebentar untuk menentukan halaman
+            return FutureBuilder<String>(
+              future: AuthService().getUserRole(snapshot.data!.uid),
+              builder: (context, roleSnapshot) {
+                if (roleSnapshot.connectionState == ConnectionState.waiting) {
+                  return const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                // Gunakan nilai default jika snapshot.data masih null
+                String role = roleSnapshot.data ?? 'Pelajar';
+
+                return role.contains('Pelajar')
+                    ? const MainNavigation()
+                    : const SenseiNavigation();
+              },
+            );
+          }
+          return const SplashScreen(); // Belum login, ke Splash lalu ke Login
+        },
+      ),
     );
   }
 }

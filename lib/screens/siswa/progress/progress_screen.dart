@@ -30,10 +30,22 @@ class ProgressScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Progres Belajar', 
-                  style: GoogleFonts.notoSerifJp(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                Text('学習の進捗 · APRIL 2026', 
-                  style: GoogleFonts.spaceMono(color: Colors.white.withOpacity(0.4), fontSize: 10, letterSpacing: 1)),
+                Text(
+                  'Progres Belajar',
+                  style: GoogleFonts.notoSerifJp(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '学習の進捗 · APRIL 2026',
+                  style: GoogleFonts.spaceMono(
+                    color: Colors.white.withOpacity(0.4),
+                    fontSize: 10,
+                    letterSpacing: 1,
+                  ),
+                ),
               ],
             ),
           ),
@@ -43,6 +55,32 @@ class ProgressScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                // gambar pp
+                Center(
+                  child: SizedBox(
+                    width: 64,
+                    height: 64,
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/images/boruto.jpeg',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 12),
+                // username
+                Center(
+                  child: Text(
+                    "Farel Fauzan",
+                    style: GoogleFonts.dmSans(
+                      color: ink,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 19),
                 // 1. STATS ROW
                 Row(
                   children: [
@@ -62,18 +100,33 @@ class ProgressScreen extends StatelessWidget {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: [
-                      BoxShadow(color: ink.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))
+                      BoxShadow(
+                        color: ink.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
                     ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('PENGUASAAN AKSARA', 
-                        style: GoogleFonts.spaceMono(fontSize: 10, color: ink.withOpacity(0.4), fontWeight: FontWeight.bold, letterSpacing: 1)),
+                      Text(
+                        'PENGUASAAN AKSARA',
+                        style: GoogleFonts.spaceMono(
+                          fontSize: 10,
+                          color: ink.withOpacity(0.4),
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                      ),
                       const SizedBox(height: 16),
                       _buildMasteryItem('Hiragana', 0.26, vermillion),
                       const SizedBox(height: 12),
-                      _buildMasteryItem('Katakana', 0.10, const Color(0xFF3D5A8A)),
+                      _buildMasteryItem(
+                        'Katakana',
+                        0.10,
+                        const Color(0xFF3D5A8A),
+                      ),
                       const SizedBox(height: 12),
                       _buildMasteryItem('Kanji N5', 0.05, sage),
                     ],
@@ -88,28 +141,40 @@ class ProgressScreen extends StatelessWidget {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: [
-                      BoxShadow(color: ink.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))
+                      BoxShadow(
+                        color: ink.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
                     ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('AKTIVITAS 4 MINGGU TERAKHIR', 
-                        style: GoogleFonts.spaceMono(fontSize: 10, color: ink.withOpacity(0.4), fontWeight: FontWeight.bold, letterSpacing: 1)),
+                      Text(
+                        'AKTIVITAS 4 MINGGU TERAKHIR',
+                        style: GoogleFonts.spaceMono(
+                          fontSize: 10,
+                          color: ink.withOpacity(0.4),
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                      ),
                       const SizedBox(height: 12),
                       // Heatmap Grid (7x4)
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 7,
-                          mainAxisSpacing: 4,
-                          crossAxisSpacing: 4,
-                        ),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 7,
+                              mainAxisSpacing: 4,
+                              crossAxisSpacing: 4,
+                            ),
                         itemCount: 28,
                         itemBuilder: (context, index) {
                           // Logika dummy untuk warna heatmap
-                          int intensity = (index * 7) % 5; 
+                          int intensity = (index * 7) % 5;
                           return Container(
                             decoration: BoxDecoration(
                               color: _getHeatmapColor(intensity, vermillion),
@@ -137,14 +202,32 @@ class ProgressScreen extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(color: const Color(0xFF1A1A2E).withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))
+          BoxShadow(
+            color: const Color(0xFF1A1A2E).withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
         children: [
-          Text(value, style: GoogleFonts.spaceMono(fontSize: 20, fontWeight: FontWeight.bold, color: color)),
+          Text(
+            value,
+            style: GoogleFonts.spaceMono(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(label.toUpperCase(), style: GoogleFonts.spaceMono(fontSize: 8, color: const Color(0xFF1A1A2E).withOpacity(0.4), letterSpacing: 1)),
+          Text(
+            label.toUpperCase(),
+            style: GoogleFonts.spaceMono(
+              fontSize: 8,
+              color: const Color(0xFF1A1A2E).withOpacity(0.4),
+              letterSpacing: 1,
+            ),
+          ),
         ],
       ),
     );
@@ -157,8 +240,22 @@ class ProgressScreen extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(name, style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF1A1A2E))),
-            Text('${(percent * 100).toInt()}%', style: GoogleFonts.spaceMono(fontSize: 10, color: color, fontWeight: FontWeight.bold)),
+            Text(
+              name,
+              style: GoogleFonts.dmSans(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF1A1A2E),
+              ),
+            ),
+            Text(
+              '${(percent * 100).toInt()}%',
+              style: GoogleFonts.spaceMono(
+                fontSize: 10,
+                color: color,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 6),

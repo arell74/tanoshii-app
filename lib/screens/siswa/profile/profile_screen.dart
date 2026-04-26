@@ -26,13 +26,16 @@ class ProfileScreen extends StatelessWidget {
                   Container(
                     width: 64,
                     height: 64,
-                    decoration: BoxDecoration(
-                      color: vermillion,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: gold, width: 2),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text('A', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+                    child: InkWell(
+                      onTap: () {
+                        // ngke we
+                      },
+                      borderRadius: BorderRadius.circular(50),
+                      child: CircleAvatar(
+                        backgroundImage: AssetImage('assets/images/boruto.jpeg'),
+                        
+                      ),
+                    )
                   ),
                   const SizedBox(width: 16),
                   Expanded(
