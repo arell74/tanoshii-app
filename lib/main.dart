@@ -7,9 +7,12 @@ import 'theme/app_theme.dart';
 import 'screens/sensei/main_navigation.dart';
 import 'screens/siswa/main_navigation.dart';
 import 'services/auth_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await dotenv.load(fileName: ".env");
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const NihonggoApp());

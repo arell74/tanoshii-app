@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-// 1. Buat model data sederhana untuk Pesan
 class ChatMessage {
   final String text;
   final bool isUser;
@@ -19,19 +20,45 @@ class ChatBotScreen extends StatefulWidget {
 
 class _AiSenseiScreenState extends State<ChatBotScreen> {
   final TextEditingController _chatController = TextEditingController();
-  final ScrollController _scrollController =
-      ScrollController(); // Untuk auto-scroll ke bawah
-
-  // 2. State untuk menyimpan daftar pesan dan status loading
+  final ScrollController _scrollController = ScrollController();
   bool _isTyping = false;
+
   final List<ChatMessage> _messages = [
     ChatMessage(
       text:
-          'おはようございます！ Selamat pagi! Hari ini kita akan belajar apa? Kamu bisa tanya apa saja tentang bahasa Jepang 😊',
+          'おはようございます！ Saya Sensei AI. Ada yang ingin ditanyakan tentang bahasa Jepang?',
       isUser: false,
       time: '09:14',
     ),
   ];
+
+  // Variabel untuk menyimpan sesi AI
+  late final GenerativeModel _model;
+  late final ChatSession _chat;
+
+  final String apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeAI();
+  }
+
+  void _initializeAI() {
+    _model = GenerativeModel(
+      model: 'gemini-1.5-flash',
+      apiKey: apiKey,
+      systemInstruction: Content.system(
+        '''Kamu adalah Sensei AI, guru bahasa Jepang yang ramah dan sabar. 
+      Kamu HANYA menjawab pertanyaan seputar bahasa Jepang: kosakata, 
+      grammar, kanji, hiragana, katakana, dan budaya Jepang.
+      Jika ditanya hal di luar itu, tolak dengan sopan dan arahkan 
+      kembali ke topik bahasa Jepang.
+      Gunakan emoji Jepang sesekali agar percakapan terasa menyenangkan 🎌''',
+      ),
+    );
+    _chat = _model.startChat();
+  }
 
   @override
   void dispose() {
@@ -40,8 +67,7 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
     super.dispose();
   }
 
-  // 3. Fungsi untuk mengirim pesan
-  void _sendMessage() {
+  void _sendMessage() async {
     if (_chatController.text.trim().isEmpty) return;
 
     String userText = _chatController.text.trim();
@@ -49,26 +75,25 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
         "${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}";
 
     setState(() {
-      // Masukkan pesan user ke daftar
       _messages.add(
         ChatMessage(text: userText, isUser: true, time: currentTime),
       );
       _chatController.clear();
-      _isTyping = true; // Munculkan indikator Sensei sedang mengetik
+      _isTyping = true;
     });
 
     _scrollToBottom();
 
-    // 4. Simulasi jeda waktu AI berpikir (2 detik), lalu AI membalas
-    Future.delayed(const Duration(seconds: 2), () {
+    try {
+      // Mengirim pesan ke Google Gemini
+      final response = await _chat.sendMessage(Content.text(userText));
+
       if (mounted) {
         setState(() {
           _isTyping = false;
-          // Balasan dummy (nanti ini diganti dengan respon dari API beneran)
           _messages.add(
             ChatMessage(
-              text:
-                  'Itu pertanyaan yang bagus! Sayangnya saat ini otak AI saya belum disambungkan ke server sungguhan. Tunggu sampai developnya selesai yaa! ~Raiden cwan',
+              text: response.text ?? 'Maaf, Sensei sedang bingung.',
               isUser: false,
               time:
                   "${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}",
@@ -77,10 +102,24 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
         });
         _scrollToBottom();
       }
-    });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isTyping = false;
+          _messages.add(
+            ChatMessage(
+              text:
+                  'Koneksi ke otak Sensei terputus. Pastikan internet menyala dan API Key sudah benar. Error: $e',
+              isUser: false,
+              time: currentTime,
+            ),
+          );
+        });
+        _scrollToBottom();
+      }
+    }
   }
 
-  // Fungsi untuk menggulir layar otomatis ke pesan terbaru
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -100,6 +139,8 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
     const Color gold = Color(0xFFC9A84C);
     const Color indigo = Color(0xFF3D5A8A);
     const Color bgColor = Color(0xFFF4F1EC);
+
+    // TODO: Rapikan UI bagian Header menjadi widget terpisah (Refactoring) agar file ini tidak terlalu panjang.
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -127,19 +168,14 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                       end: Alignment.bottomRight,
                     ),
                     shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: gold.withOpacity(0.4),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
                   ),
                   alignment: Alignment.center,
-                  child: ClipOval(
-                    child: Image.asset(
-                      'assets/images/raii.jpg',
-                      fit: BoxFit.cover,
+                  child: Text(
+                    '先',
+                    style: GoogleFonts.notoSerifJp(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -149,7 +185,7 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Raiden AI',
+                        'Sensei AI',
                         style: GoogleFonts.dmSans(
                           color: Colors.white,
                           fontSize: 16,
@@ -157,7 +193,7 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                         ),
                       ),
                       Text(
-                        '先生 · AI BAHASA JEPANG',
+                        'Powered by Gemini',
                         style: GoogleFonts.spaceMono(
                           color: Colors.white.withOpacity(0.5),
                           fontSize: 10,
@@ -173,12 +209,6 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                   decoration: BoxDecoration(
                     color: const Color(0xFF4ADE80),
                     shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF4ADE80).withOpacity(0.6),
-                        blurRadius: 6,
-                      ),
-                    ],
                   ),
                 ),
               ],
@@ -190,11 +220,8 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
             child: ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.all(16),
-              itemCount:
-                  _messages.length +
-                  (_isTyping ? 1 : 0), // Tambah 1 jika sedang mengetik
+              itemCount: _messages.length + (_isTyping ? 1 : 0),
               itemBuilder: (context, index) {
-                // Menampilkan indikator typing di urutan paling bawah
                 if (index == _messages.length && _isTyping) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8.0, bottom: 16.0),
@@ -218,22 +245,7 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                   padding: const EdgeInsets.only(bottom: 12.0),
                   child: _buildChatBubble(
                     isUser: msg.isUser,
-                    avatar: msg.isUser
-                        ? CircleAvatar(
-                            radius: 14,
-                            backgroundColor: const Color(0xFF3D5A8A),
-                            child: const Icon(
-                              Icons.person,
-                              size: 16,
-                              color: Colors.white,
-                            ),
-                          )
-                        : CircleAvatar(
-                            radius: 14,
-                            backgroundImage: const AssetImage(
-                              'assets/images/raii.jpg',
-                            ),
-                          ),
+                    avatarLabel: msg.isUser ? 'S' : '先',
                     time: msg.time,
                     child: Text(
                       msg.text,
@@ -280,8 +292,7 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                           vertical: 12,
                         ),
                       ),
-                      onSubmitted: (_) =>
-                          _sendMessage(), // Bisa kirim pakai tombol enter di keyboard
+                      onSubmitted: (_) => _sendMessage(),
                     ),
                   ),
                 ),
@@ -303,7 +314,7 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                       color: Colors.white,
                       size: 18,
                     ),
-                    onPressed: _sendMessage, // Panggil fungsi kirim
+                    onPressed: _sendMessage,
                   ),
                 ),
               ],
@@ -314,13 +325,13 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
     );
   }
 
-  // Helper Widget: Chat Bubble (Tetap sama seperti sebelumnya)
   Widget _buildChatBubble({
     required bool isUser,
-    required Widget avatar,
+    required String avatarLabel,
     required String time,
     required Widget child,
   }) {
+    // (Fungsi _buildChatBubble sama persis seperti sebelumnya)
     const Color ink = Color(0xFF1A1A2E);
     const Color indigo = Color(0xFF3D5A8A);
     const Color vermillion = Color(0xFFD94F3D);
@@ -341,7 +352,14 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: avatar,
+            child: Text(
+              avatarLabel,
+              style: GoogleFonts.notoSerifJp(
+                fontSize: 12,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           const SizedBox(width: 8),
         ],
@@ -398,7 +416,14 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: avatar,
+            child: Text(
+              avatarLabel,
+              style: GoogleFonts.dmSans(
+                fontSize: 12,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ],

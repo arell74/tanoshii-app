@@ -34,13 +34,28 @@ class SenseiHomeScreen extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Konnichiwa, Sensei! 👨‍🏫', 
-                          style: GoogleFonts.dmSans(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                        Text('MANAJEMEN KELAS — NIHONGO!', 
-                          style: GoogleFonts.spaceMono(color: Colors.white54, fontSize: 10, letterSpacing: 1)),
+                        Text(
+                          'Konnichiwa, Sensei! 👨‍🏫',
+                          style: GoogleFonts.dmSans(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'MANAJEMEN KELAS — NIHONGO!',
+                          style: GoogleFonts.spaceMono(
+                            color: Colors.white54,
+                            fontSize: 10,
+                            letterSpacing: 1,
+                          ),
+                        ),
                       ],
                     ),
-                    const CircleAvatar(backgroundImage: NetworkImage('https://ui-avatars.com/api/?name=Sensei+Farel&background=c9a84c&color=fff')),
+                    CircleAvatar(
+                      radius: 19,
+                      child: Image.asset('assets/images/raiden.jpg'),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -64,15 +79,47 @@ class SenseiHomeScreen extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               children: [
                 _buildSectionHeader('Pemantauan Aktif', 'Real-time'),
-                _buildStudentTile('Andi Pratama', 'Level 3', '84%', '🔥 7 Hari', sage),
-                _buildStudentTile('Siti Aminah', 'Level 2', '92%', '🔥 14 Hari', gold),
-                _buildStudentTile('Budi Santoso', 'Level 1', '45%', '❄️ 2 Hari', vermillion),
-                _buildStudentTile('Dewi Lestari', 'Level 3', '88%', '🔥 5 Hari', sage),
-                
+                _buildStudentTile(
+                  'Haimiya',
+                  'Level 3',
+                  '84%',
+                  '🔥 7 Hari',
+                  sage,
+                ),
+                _buildStudentTile(
+                  'Raiden eii',
+                  'Level 2',
+                  '92%',
+                  '🔥 14 Hari',
+                  gold,
+                ),
+                _buildStudentTile(
+                  'Budi Santoso',
+                  'Level 1',
+                  '45%',
+                  '❄️ 2 Hari',
+                  vermillion,
+                ),
+                _buildStudentTile(
+                  'Dewi Lestari',
+                  'Level 3',
+                  '88%',
+                  '🔥 5 Hari',
+                  sage,
+                ),
+
                 const SizedBox(height: 24),
                 _buildSectionHeader('Konten Populer', 'Statistik Materi'),
-                _buildContentCard('Hiragana Baris あ', 'Paling banyak dipelajari', gold),
-                _buildContentCard('Kanji N5: Kata Kerja', 'Tingkat kesulitan tinggi', vermillion),
+                _buildContentCard(
+                  'Hiragana Baris あ',
+                  'Paling banyak dipelajari',
+                  gold,
+                ),
+                _buildContentCard(
+                  'Kanji N5: Kata Kerja',
+                  'Tingkat kesulitan tinggi',
+                  vermillion,
+                ),
               ],
             ),
           ),
@@ -85,14 +132,25 @@ class SenseiHomeScreen extends StatelessWidget {
     return Expanded(
       child: Column(
         children: [
-          Text(value, style: GoogleFonts.spaceMono(color: color, fontSize: 18, fontWeight: FontWeight.bold)),
-          Text(label, style: GoogleFonts.dmSans(color: Colors.white54, fontSize: 10)),
+          Text(
+            value,
+            style: GoogleFonts.spaceMono(
+              color: color,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            label,
+            style: GoogleFonts.dmSans(color: Colors.white54, fontSize: 10),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildDivider() => Container(height: 20, width: 1, color: Colors.white10);
+  Widget _buildDivider() =>
+      Container(height: 20, width: 1, color: Colors.white10);
 
   Widget _buildSectionHeader(String title, String sub) {
     return Padding(
@@ -100,40 +158,90 @@ class SenseiHomeScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF1A1A2E))),
-          Text(sub, style: GoogleFonts.spaceMono(fontSize: 10, color: Colors.black26)),
+          Text(
+            title,
+            style: GoogleFonts.dmSans(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF1A1A2E),
+            ),
+          ),
+          Text(
+            sub,
+            style: GoogleFonts.spaceMono(fontSize: 10, color: Colors.black26),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildStudentTile(String name, String level, String acc, String streak, Color statusColor) {
+  Widget _buildStudentTile(
+    String name,
+    String level,
+    String acc,
+    String streak,
+    Color statusColor,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 4, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          Container(width: 4, height: 30, decoration: BoxDecoration(color: statusColor, borderRadius: BorderRadius.circular(2))),
+          Container(
+            width: 4,
+            height: 30,
+            decoration: BoxDecoration(
+              color: statusColor,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, fontSize: 14)),
-                Text(level, style: GoogleFonts.spaceMono(fontSize: 10, color: Colors.black45)),
+                Text(
+                  name,
+                  style: GoogleFonts.dmSans(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  level,
+                  style: GoogleFonts.spaceMono(
+                    fontSize: 10,
+                    color: Colors.black45,
+                  ),
+                ),
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(acc, style: GoogleFonts.spaceMono(fontWeight: FontWeight.bold, color: statusColor)),
-              Text(streak, style: GoogleFonts.dmSans(fontSize: 10, color: Colors.black38)),
+              Text(
+                acc,
+                style: GoogleFonts.spaceMono(
+                  fontWeight: FontWeight.bold,
+                  color: statusColor,
+                ),
+              ),
+              Text(
+                streak,
+                style: GoogleFonts.dmSans(fontSize: 10, color: Colors.black38),
+              ),
             ],
           ),
         ],
@@ -157,8 +265,17 @@ class SenseiHomeScreen extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, color: const Color(0xFF1A1A2E))),
-              Text(desc, style: GoogleFonts.dmSans(fontSize: 11, color: Colors.black54)),
+              Text(
+                title,
+                style: GoogleFonts.dmSans(
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF1A1A2E),
+                ),
+              ),
+              Text(
+                desc,
+                style: GoogleFonts.dmSans(fontSize: 11, color: Colors.black54),
+              ),
             ],
           ),
         ],
