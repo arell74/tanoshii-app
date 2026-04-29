@@ -6,277 +6,340 @@ class SenseiHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color ink = Color(0xFF1A1A2E);
+    const Color indigo = Color(0xFF3D5A8A);
     const Color vermillion = Color(0xFFD94F3D);
-    const Color gold = Color(0xFFC9A84C);
     const Color sage = Color(0xFF4A7C6F);
+    const Color gold = Color(0xFFC9A84C);
+    const Color purple = Color(0xFF7C4F8A);
+    const Color bgColor = Color(0xFFF5F4F0);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF7F2),
-      body: Column(
-        children: [
-          // ── HEADER SENSEI ──
-          Container(
-            padding: const EdgeInsets.fromLTRB(20, 60, 20, 24),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF2A1A3E), Color(0xFF1A1A2E)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+      backgroundColor: bgColor,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── HEADER BIRU (INDIGO) ──
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+              decoration: const BoxDecoration(
+                color: indigo,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'おはようございます',
+                            style: GoogleFonts.spaceMono(
+                              color: Colors.white70,
+                              fontSize: 10,
+                            ),
+                          ),
+                          Text(
+                            'Sensei Farel 👋',
+                            style: GoogleFonts.dmSans(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.notifications_none_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.4),
+                                width: 2,
+                              ),
+                              image: const DecorationImage(
+                                image: NetworkImage(
+                                  'https://ui-avatars.com/api/?name=Sensei+Farel&background=c9a84c&color=fff',
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Statistik Ringkas (3 Kolom)
+                  Row(
+                    children: [
+                      _buildHeaderStat('32', 'SISWA'),
+                      const SizedBox(width: 10),
+                      _buildHeaderStat('28', 'AKTIF HARI INI'),
+                      const SizedBox(width: 10),
+                      _buildHeaderStat('2', 'KUIS AKTIF'),
+                    ],
+                  ),
+                ],
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── ALERT BANNER ──
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: vermillion.withOpacity(0.1),
+                      border: Border.all(color: vermillion.withOpacity(0.25)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
                       children: [
-                        Text(
-                          'Konnichiwa, Sensei! 👨‍🏫',
-                          style: GoogleFonts.dmSans(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                        const Text('⚠️', style: TextStyle(fontSize: 18)),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '2 Siswa Butuh Perhatian',
+                                style: GoogleFonts.dmSans(
+                                  fontWeight: FontWeight.bold,
+                                  color: vermillion,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                'Akurasi di bawah 50% minggu ini.',
+                                style: GoogleFonts.dmSans(
+                                  color: vermillion.withOpacity(0.8),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        Text(
-                          'MANAJEMEN KELAS — NIHONGO!',
-                          style: GoogleFonts.spaceMono(
-                            color: Colors.white54,
-                            fontSize: 10,
-                            letterSpacing: 1,
-                          ),
+                        Icon(
+                          Icons.chevron_right,
+                          color: vermillion.withOpacity(0.5),
                         ),
                       ],
                     ),
-                    CircleAvatar(
-                      radius: 19,
-                      child: Image.asset('assets/images/raiden.jpg'),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // ── AKSI CEPAT (GRID 2x2) ──
+                  Text(
+                    'AKSI CEPAT',
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 10,
+                      letterSpacing: 2,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                // Ringkasan Kelas Row
-                Row(
-                  children: [
-                    _buildQuickStat('32', 'Total Murid', Colors.white),
-                    _buildDivider(),
-                    _buildQuickStat('86%', 'Akurasi Kelas', gold),
-                    _buildDivider(),
-                    _buildQuickStat('12', 'Butuh Bantuan', vermillion),
-                  ],
-                ),
-              ],
-            ),
-          ),
+                  ),
+                  const SizedBox(height: 12),
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 1.5,
+                    children: [
+                      _buildActionCard(
+                        'Pantau Kelas',
+                        Icons.analytics_rounded,
+                        indigo,
+                      ),
+                      _buildActionCard(
+                        'Buat Kuis',
+                        Icons.edit_document,
+                        vermillion,
+                      ),
+                      _buildActionCard(
+                        'Pengumuman',
+                        Icons.campaign_rounded,
+                        purple,
+                      ),
+                      _buildActionCard(
+                        'Leaderboard',
+                        Icons.emoji_events_rounded,
+                        sage,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 28),
 
-          // ── DAFTAR MURID ──
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(20),
-              children: [
-                _buildSectionHeader('Pemantauan Aktif', 'Real-time'),
-                _buildStudentTile(
-                  'Haimiya',
-                  'Level 3',
-                  '84%',
-                  '🔥 7 Hari',
-                  sage,
-                ),
-                _buildStudentTile(
-                  'Raiden eii',
-                  'Level 2',
-                  '92%',
-                  '🔥 14 Hari',
-                  gold,
-                ),
-                _buildStudentTile(
-                  'Budi Santoso',
-                  'Level 1',
-                  '45%',
-                  '❄️ 2 Hari',
-                  vermillion,
-                ),
-                _buildStudentTile(
-                  'Dewi Lestari',
-                  'Level 3',
-                  '88%',
-                  '🔥 5 Hari',
-                  sage,
-                ),
-
-                const SizedBox(height: 24),
-                _buildSectionHeader('Konten Populer', 'Statistik Materi'),
-                _buildContentCard(
-                  'Hiragana Baris あ',
-                  'Paling banyak dipelajari',
-                  gold,
-                ),
-                _buildContentCard(
-                  'Kanji N5: Kata Kerja',
-                  'Tingkat kesulitan tinggi',
-                  vermillion,
-                ),
-              ],
+                  // ── AKTIVITAS TERBARU ──
+                  Text(
+                    'AKTIVITAS TERBARU',
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 10,
+                      letterSpacing: 2,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildActivityTile(
+                    'Andi menyelesaikan Kuis Hiragana Dasar',
+                    'Baru saja',
+                    indigo,
+                  ),
+                  _buildActivityTile(
+                    'Siti mencapai Streak 7 Hari 🔥',
+                    '15 mnt lalu',
+                    sage,
+                  ),
+                  _buildActivityTile(
+                    'Budi mendapat nilai 40% di Kuis Kanji N5',
+                    '1 jam lalu',
+                    vermillion,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildQuickStat(String value, String label, Color color) {
+  // Helper Widget: Header Stat Box
+  Widget _buildHeaderStat(String value, String label) {
     return Expanded(
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: GoogleFonts.spaceMono(
-              color: color,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          children: [
+            Text(
+              value,
+              style: GoogleFonts.spaceMono(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          Text(
-            label,
-            style: GoogleFonts.dmSans(color: Colors.white54, fontSize: 10),
-          ),
-        ],
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: GoogleFonts.spaceMono(
+                color: Colors.white70,
+                fontSize: 8,
+                letterSpacing: 1,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildDivider() =>
-      Container(height: 20, width: 1, color: Colors.white10);
-
-  Widget _buildSectionHeader(String title, String sub) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.dmSans(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xFF1A1A2E),
+  // Helper Widget: Action Card 2x2
+  Widget _buildActionCard(String title, IconData icon, Color color) {
+    return Container(
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        border: Border.all(color: color.withOpacity(0.2)),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {}, // TODO: Hubungkan ke tab navigasi yang sesuai
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: color, size: 24),
+                const SizedBox(height: 8),
+                Text(
+                  title,
+                  style: GoogleFonts.dmSans(
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
             ),
           ),
-          Text(
-            sub,
-            style: GoogleFonts.spaceMono(fontSize: 10, color: Colors.black26),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildStudentTile(
-    String name,
-    String level,
-    String acc,
-    String streak,
-    Color statusColor,
-  ) {
+  // Helper Widget: Activity Tile
+  Widget _buildActivityTile(String title, String time, Color iconColor) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: Colors.grey.withOpacity(0.2)),
       ),
       child: Row(
         children: [
           Container(
-            width: 4,
-            height: 30,
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: statusColor,
-              borderRadius: BorderRadius.circular(2),
+              color: iconColor.withOpacity(0.1),
+              shape: BoxShape.circle,
             ),
+            child: Icon(Icons.history_rounded, color: iconColor, size: 16),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: GoogleFonts.dmSans(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                Text(
-                  level,
-                  style: GoogleFonts.spaceMono(
-                    fontSize: 10,
-                    color: Colors.black45,
-                  ),
-                ),
-              ],
+            child: Text(
+              title,
+              style: GoogleFonts.dmSans(
+                fontSize: 13,
+                color: const Color(0xFF1A1A2E),
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                acc,
-                style: GoogleFonts.spaceMono(
-                  fontWeight: FontWeight.bold,
-                  color: statusColor,
-                ),
-              ),
-              Text(
-                streak,
-                style: GoogleFonts.dmSans(fontSize: 10, color: Colors.black38),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildContentCard(String title, String desc, Color color) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.auto_stories, color: color, size: 20),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.dmSans(
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF1A1A2E),
-                ),
-              ),
-              Text(
-                desc,
-                style: GoogleFonts.dmSans(fontSize: 11, color: Colors.black54),
-              ),
-            ],
+          const SizedBox(width: 8),
+          Text(
+            time,
+            style: GoogleFonts.spaceMono(fontSize: 10, color: Colors.grey[500]),
           ),
         ],
       ),

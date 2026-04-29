@@ -68,6 +68,7 @@ flutter:
     - assets/images/raiden.jpg
     - assets/images/raii.jpg
     - assets/images/boruto.jpeg
+    - assets/images/zaniii.jpeg
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see

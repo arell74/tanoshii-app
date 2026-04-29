@@ -15,11 +15,11 @@ void main() async {
   await dotenv.load(fileName: ".env");
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const NihonggoApp());
+  runApp(const TanohsiiApp());
 }
 
-class NihonggoApp extends StatelessWidget {
-  const NihonggoApp({super.key});
+class TanohsiiApp extends StatelessWidget {
+  const TanohsiiApp({super.key});
 
   @override
   Widget build(BuildContext context) {

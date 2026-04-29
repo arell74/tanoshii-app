@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tanoshii_app/screens/sensei/profile/profile_screen.dart';
-import './home/home_screen.dart';
+import 'home/home_screen.dart';
 
 class SenseiNavigation extends StatefulWidget {
   const SenseiNavigation({Key? key}) : super(key: key);
@@ -15,28 +14,52 @@ class _SenseiNavigationState extends State<SenseiNavigation> {
 
   final List<Widget> _pages = [
     const SenseiHomeScreen(),
-    const Center(child: Text('Daftar Murid Lengkap')),
-    const Center(child: Text('Manajemen Kurikulum')),
-    const ProfileScreen(),
+    const Center(child: Text('Halaman Kelas (Monitor Progress)')),
+    const Center(child: Text('Halaman Kelola Kuis')),
+    const Center(child: Text('Halaman Pengumuman')),
+    const Center(
+      child: Text('Halaman Pengaturan Guru'),
+    ), // Nanti kita pasang fitur Logout di sini
   ];
 
   @override
   Widget build(BuildContext context) {
+    const Color indigo = Color(0xFF3D5A8A);
+
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFFC9A84C), // Gold untuk Sensei
+        selectedItemColor: indigo,
         unselectedItemColor: Colors.grey.withOpacity(0.5),
-        selectedLabelStyle: GoogleFonts.spaceMono(fontSize: 10, fontWeight: FontWeight.bold),
+        selectedLabelStyle: GoogleFonts.spaceMono(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
         unselectedLabelStyle: GoogleFonts.spaceMono(fontSize: 10),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard_rounded), label: 'OVERVIEW'),
-          BottomNavigationBarItem(icon: Icon(Icons.people_alt_rounded), label: 'MURID'),
-          BottomNavigationBarItem(icon: Icon(Icons.edit_note_rounded), label: 'KONTEN'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings_rounded), label: 'OPSI'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_rounded),
+            label: 'HOME',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people_alt_rounded),
+            label: 'KELAS',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.quiz_rounded),
+            label: 'KUIS',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.campaign_rounded),
+            label: 'NOTIF',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings_rounded),
+            label: 'SETING',
+          ),
         ],
       ),
     );

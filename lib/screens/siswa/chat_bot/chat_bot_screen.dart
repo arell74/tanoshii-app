@@ -28,7 +28,8 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
       text:
           'おはようございます！ Saya Sensei AI. Ada yang ingin ditanyakan tentang bahasa Jepang?',
       isUser: false,
-      time: '09:14',
+      time:
+          "${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}",
     ),
   ];
 
@@ -49,7 +50,7 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
       model: 'gemini-2.5-flash',
       apiKey: apiKey,
       systemInstruction: Content.system(
-        '''Kamu adalah Sensei AI, guru bahasa Jepang yang ramah dan sabar. 
+        '''Kamu adalah Rai-sensei, guru bahasa Jepang. 
       Kamu HANYA menjawab pertanyaan seputar bahasa Jepang: kosakata, 
       grammar, kanji, hiragana, katakana, dan budaya Jepang.
       Jika ditanya hal di luar itu, tolak dengan sopan dan arahkan 
@@ -170,12 +171,10 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
-                  child: Text(
-                    '先',
-                    style: GoogleFonts.notoSerifJp(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/raii.jpg',
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
@@ -185,7 +184,7 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Sensei AI',
+                        'Raiden AI',
                         style: GoogleFonts.dmSans(
                           color: Colors.white,
                           fontSize: 16,
@@ -193,7 +192,7 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                         ),
                       ),
                       Text(
-                        'Powered by Gemini',
+                        '先生 · SENSEI AI BAHASA JEPANG',
                         style: GoogleFonts.spaceMono(
                           color: Colors.white.withOpacity(0.5),
                           fontSize: 10,
@@ -228,7 +227,7 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                     child: Row(
                       children: [
                         Text(
-                          'Sensei sedang mengetik...',
+                          'Rai-sensei sedang mengetik...',
                           style: GoogleFonts.dmSans(
                             fontSize: 12,
                             color: ink.withOpacity(0.5),
@@ -245,7 +244,22 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                   padding: const EdgeInsets.only(bottom: 12.0),
                   child: _buildChatBubble(
                     isUser: msg.isUser,
-                    avatarLabel: msg.isUser ? 'S' : '先',
+                    avatar: msg.isUser
+                        ? CircleAvatar(
+                            radius: 14,
+                            backgroundColor: const Color(0xFF3D5A8A),
+                            child: const Icon(
+                              Icons.person,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                          )
+                        : CircleAvatar(
+                            radius: 14,
+                            backgroundImage: const AssetImage(
+                              'assets/images/raii.jpg',
+                            ),
+                          ),
                     time: msg.time,
                     child: Text(
                       msg.text,
@@ -327,7 +341,8 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
 
   Widget _buildChatBubble({
     required bool isUser,
-    required String avatarLabel,
+    // required String avatarLabel,
+    required Widget avatar,
     required String time,
     required Widget child,
   }) {
@@ -352,14 +367,7 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: Text(
-              avatarLabel,
-              style: GoogleFonts.notoSerifJp(
-                fontSize: 12,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: avatar,
           ),
           const SizedBox(width: 8),
         ],
@@ -416,14 +424,7 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: Text(
-              avatarLabel,
-              style: GoogleFonts.dmSans(
-                fontSize: 12,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: avatar,
           ),
         ],
       ],
