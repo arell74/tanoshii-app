@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SenseiHomeScreen extends StatelessWidget {
   const SenseiHomeScreen({Key? key}) : super(key: key);
@@ -45,7 +47,7 @@ class SenseiHomeScreen extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            'Sensei Farel 👋',
+                            'Sensei Raiden 👋',
                             style: GoogleFonts.dmSans(
                               color: Colors.white,
                               fontSize: 20,
@@ -78,10 +80,8 @@ class SenseiHomeScreen extends StatelessWidget {
                                 color: Colors.white.withOpacity(0.4),
                                 width: 2,
                               ),
-                              image: const DecorationImage(
-                                image: NetworkImage(
-                                  'https://ui-avatars.com/api/?name=Sensei+Farel&background=c9a84c&color=fff',
-                                ),
+                              image: DecorationImage(
+                                image: AssetImage('assets/images/zaniii.jpeg'),
                               ),
                             ),
                           ),
@@ -166,7 +166,7 @@ class SenseiHomeScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 2),
                   GridView.count(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
