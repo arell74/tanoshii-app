@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tanoshii_app/screens/sensei/kelas/student_monitor.dart';
+import 'package:tanoshii_app/screens/sensei/profile/profile_screen.dart';
 import 'home/home_screen.dart';
 
 class SenseiNavigation extends StatefulWidget {
@@ -18,9 +19,7 @@ class _SenseiNavigationState extends State<SenseiNavigation> {
     const StudentMonitorScreen(),
     const Center(child: Text('Halaman Kelola Kuis')),
     const Center(child: Text('Halaman Pengumuman')),
-    const Center(
-      child: Text('Halaman Pengaturan Guru'),
-    ), // Nanti kita pasang fitur Logout di sini
+    const ProfileScreen(),
   ];
 
   @override

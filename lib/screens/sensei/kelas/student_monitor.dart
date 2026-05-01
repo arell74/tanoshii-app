@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'student_detail_screen.dart';
+
 class StudentMonitorScreen extends StatefulWidget {
   const StudentMonitorScreen({Key? key}) : super(key: key);
 
@@ -136,22 +138,30 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
     );
   }
 
-  Widget _buildStudentCard(
-    String name,
-    int accuracy,
-    Color progressColor,
-    String initial, {
-    bool isWarning = false,
-    bool isTop = false,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.withOpacity(0.15)),
-      ),
+  Widget _buildStudentCard(String name, int accuracy, Color progressColor, String initial, {bool isWarning = false, bool isTop = false}) {
+    return GestureDetector(
+      onTap: () {
+        // Navigasi ke halaman detail saat di-klik
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StudentDetailScreen(
+              name: name,
+              accuracy: accuracy,
+              themeColor: progressColor,
+              initial: initial,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.withOpacity(0.15)),
+        ),
       child: Row(
         children: [
           // Avatar
@@ -255,6 +265,7 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 }
