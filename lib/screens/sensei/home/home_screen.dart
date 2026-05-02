@@ -6,6 +6,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class SenseiHomeScreen extends StatelessWidget {
   const SenseiHomeScreen({Key? key}) : super(key: key);
 
+  Future<String> _getUserName() async {
+    try {
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        DocumentSnapshot doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .get();
+        if (doc.exists && doc.data() != null) {
+          return doc.get('name') ?? 'Pengajar';
+        }
+      }
+    } catch (e) {
+      print("Error mengambil nama: $e");
+    }
+    return 'Pengajar';
+  }
+
   @override
   Widget build(BuildContext context) {
     const Color indigo = Color(0xFF3D5A8A);
@@ -46,13 +64,26 @@ class SenseiHomeScreen extends StatelessWidget {
                               fontSize: 10,
                             ),
                           ),
-                          Text(
-                            'Sensei Raiden 👋',
-                            style: GoogleFonts.dmSans(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          FutureBuilder<String>(
+                            future: _getUserName(),
+                            builder: (context, snapshot) {
+                              String displayName = 'Memuat...';
+
+                              if (snapshot.connectionState ==
+                                  ConnectionState.done) {
+                                String fullName = snapshot.data ?? 'Pengajar';
+                                displayName = fullName;
+                              }
+
+                              return Text(
+                                'Halo, $displayName-sensei',
+                                style: GoogleFonts.dmSans(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -154,7 +185,7 @@ class SenseiHomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
                   // ── AKSI CEPAT (GRID 2x2) ──
                   Text(

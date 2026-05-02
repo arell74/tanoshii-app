@@ -55,7 +55,7 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
                         hintText: 'Cari nama siswa...',
                         hintStyle: GoogleFonts.dmSans(
                           color: Colors.white60,
-                          fontSize: 13,
+                          fontSize: 15,
                         ),
                         prefixIcon: const Icon(
                           Icons.search,
@@ -138,7 +138,14 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
     );
   }
 
-  Widget _buildStudentCard(String name, int accuracy, Color progressColor, String initial, {bool isWarning = false, bool isTop = false}) {
+  Widget _buildStudentCard(
+    String name,
+    int accuracy,
+    Color progressColor,
+    String initial, {
+    bool isWarning = false,
+    bool isTop = false,
+  }) {
     return GestureDetector(
       onTap: () {
         // Navigasi ke halaman detail saat di-klik
@@ -162,110 +169,111 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey.withOpacity(0.15)),
         ),
-      child: Row(
-        children: [
-          // Avatar
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: progressColor.withOpacity(0.15),
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              initial,
-              style: GoogleFonts.dmSans(
-                color: progressColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+        child: Row(
+          children: [
+            // Avatar
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: progressColor.withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                initial,
+                style: GoogleFonts.dmSans(
+                  color: progressColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 14),
+            const SizedBox(width: 14),
 
-          // Nama & Progress Bar
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: GoogleFonts.dmSans(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: const Color(0xFF1A1A2E),
+            // Nama & Progress Bar
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: const Color(0xFF1A1A2E),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                // Custom Progress Bar Mini[cite: 1]
-                Container(
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: progressColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                  child: FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor:
-                        accuracy / 100, // Menyesuaikan lebar bar dengan akurasi
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: progressColor,
-                        borderRadius: BorderRadius.circular(3),
+                  const SizedBox(height: 6),
+                  // Custom Progress Bar Mini[cite: 1]
+                  Container(
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: progressColor.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor:
+                          accuracy /
+                          100, // Menyesuaikan lebar bar dengan akurasi
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: progressColor,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
                       ),
                     ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 14),
+
+            // Akurasi & Badge
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (isWarning)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.red.withOpacity(0.3)),
+                    ),
+                    child: const Text('⚠️', style: TextStyle(fontSize: 10)),
+                  )
+                else if (isTop)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                    ),
+                    child: const Text('🏆', style: TextStyle(fontSize: 10)),
+                  ),
+                const SizedBox(height: 4),
+                Text(
+                  '$accuracy%',
+                  style: GoogleFonts.spaceMono(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: progressColor,
                   ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 14),
-
-          // Akurasi & Badge
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (isWarning)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.red.withOpacity(0.3)),
-                  ),
-                  child: const Text('⚠️', style: TextStyle(fontSize: 10)),
-                )
-              else if (isTop)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.amber.withOpacity(0.3)),
-                  ),
-                  child: const Text('🏆', style: TextStyle(fontSize: 10)),
-                ),
-              const SizedBox(height: 4),
-              Text(
-                '$accuracy%',
-                style: GoogleFonts.spaceMono(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: progressColor,
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 }

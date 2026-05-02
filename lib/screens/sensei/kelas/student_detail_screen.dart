@@ -29,7 +29,14 @@ class StudentDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: indigo,
         elevation: 0,
-        title: Text('Detail Siswa', style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+        title: Text(
+          'Detail Siswa',
+          style: GoogleFonts.dmSans(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
@@ -41,24 +48,55 @@ class StudentDetailScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
               decoration: const BoxDecoration(
                 color: indigo,
-                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
               ),
               child: Row(
                 children: [
                   Container(
-                    width: 56, height: 56,
-                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), shape: BoxShape.circle, border: Border.all(color: Colors.white.withOpacity(0.5), width: 2)),
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.5),
+                        width: 2,
+                      ),
+                    ),
                     alignment: Alignment.center,
-                    child: Text(initial, style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24)),
+                    child: Text(
+                      initial,
+                      style: GoogleFonts.dmSans(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(name, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                        Text(
+                          name,
+                          style: GoogleFonts.dmSans(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 4),
-                        Text('Bergabung sejak Jan 2026', style: GoogleFonts.spaceMono(color: Colors.white70, fontSize: 10)),
+                        Text(
+                          'Bergabung sejak Jan 2026',
+                          style: GoogleFonts.spaceMono(
+                            color: Colors.white70,
+                            fontSize: 10,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -86,11 +124,23 @@ class StudentDetailScreen extends StatelessWidget {
                   // ── PENGUASAAN MODUL (MASTERY BARS) ──[cite: 1]
                   Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withOpacity(0.15))),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.withOpacity(0.15)),
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('PENGUASAAN MODUL', style: GoogleFonts.spaceMono(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1, color: const Color(0xFF1A1A2E))),
+                        Text(
+                          'PENGUASAAN MODUL',
+                          style: GoogleFonts.spaceMono(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1,
+                            color: const Color(0xFF1A1A2E),
+                          ),
+                        ),
                         const SizedBox(height: 16),
                         _buildMasteryBar('Hiragana Dasar', 0.85, vermillion),
                         const SizedBox(height: 12),
@@ -106,11 +156,22 @@ class StudentDetailScreen extends StatelessWidget {
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(color: vermillion.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: vermillion.withOpacity(0.2))),
+                    decoration: BoxDecoration(
+                      color: vermillion.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: vermillion.withOpacity(0.2)),
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('KARTU LEMAH — PERLU REVIEW', style: GoogleFonts.spaceMono(fontSize: 10, fontWeight: FontWeight.bold, color: vermillion)),
+                        Text(
+                          'KARTU LEMAH — PERLU REVIEW',
+                          style: GoogleFonts.spaceMono(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: vermillion,
+                          ),
+                        ),
                         const SizedBox(height: 12),
                         Wrap(
                           spacing: 8,
@@ -120,9 +181,26 @@ class StudentDetailScreen extends StatelessWidget {
                             _buildWeakCard('を', 'wo'),
                             _buildWeakCard('ゑ', 'we'),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                              decoration: BoxDecoration(color: vermillion.withOpacity(0.05), borderRadius: BorderRadius.circular(8), border: Border.all(color: vermillion.withOpacity(0.3), style: BorderStyle.solid)),
-                              child: Text('+4', style: GoogleFonts.spaceMono(color: vermillion.withOpacity(0.8), fontSize: 12, fontWeight: FontWeight.bold)),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: vermillion.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: vermillion.withOpacity(0.3),
+                                  style: BorderStyle.solid,
+                                ),
+                              ),
+                              child: Text(
+                                '+4',
+                                style: GoogleFonts.spaceMono(
+                                  color: vermillion.withOpacity(0.8),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -135,21 +213,24 @@ class StudentDetailScreen extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
-                      onPressed: () {
-                        // TODO: Logika kirim pesan personal
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fitur kirim pesan ke $name belum aktif.')));
-                      },
+                      onPressed: () => _showSendMessageModal(context, name),
                       icon: const Icon(Icons.campaign_rounded, size: 18),
                       label: const Text('KIRIM PESAN KE SISWA INI'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: indigo,
                         side: const BorderSide(color: indigo, width: 1.5),
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        textStyle: GoogleFonts.spaceMono(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        textStyle: GoogleFonts.spaceMono(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -159,24 +240,158 @@ class StudentDetailScreen extends StatelessWidget {
     );
   }
 
+  // notif pesan ke siswa
+  void _showSendMessageModal(BuildContext context, String studentName) {
+    const Color indigo = Color(0xFF3D5A8A);
+    final TextEditingController messageController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Agar sheet bisa naik saat keyboard muncul
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Padding(
+          // Margin bawah dinamis sesuai tinggi keyboard
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Tinggi menyesuaikan isi
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Kirim Pesan ke $studentName',
+                  style: GoogleFonts.dmSans(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF1A1A2E),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Pesan ini akan masuk sebagai notifikasi personal ke aplikasi siswa.',
+                  style: GoogleFonts.spaceMono(
+                    fontSize: 10,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Form Input Pesan
+                TextField(
+                  controller: messageController,
+                  maxLines: 4,
+                  style: GoogleFonts.dmSans(fontSize: 13),
+                  decoration: InputDecoration(
+                    hintText:
+                        'Tulis pesan motivasi, pengingat, atau teguran...',
+                    hintStyle: GoogleFonts.dmSans(
+                      fontSize: 13,
+                      color: Colors.grey[400],
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFFF5F4F0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Tombol Kirim
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Tutup bottom sheet
+                      Navigator.pop(context);
+                      // Tampilkan indikator sukses
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Pesan terkirim ke $studentName!'),
+                          backgroundColor: const Color(
+                            0xFF4A7C6F,
+                          ), // Warna hijau sage
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: indigo,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text(
+                      'Kirim Pesan',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   // Helper: Stat Box
   Widget _buildStatBox(String title, String value, String unit, Color color) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10), border: Border.all(color: color.withOpacity(0.2))),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withOpacity(0.2)),
+        ),
         child: Column(
           children: [
-            Text(title, style: GoogleFonts.spaceMono(fontSize: 8, fontWeight: FontWeight.bold, color: color)),
+            Text(
+              title,
+              style: GoogleFonts.spaceMono(
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
             const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
               children: [
-                Text(value, style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.bold, color: color)),
+                Text(
+                  value,
+                  style: GoogleFonts.dmSans(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
                 const SizedBox(width: 2),
-                Text(unit, style: GoogleFonts.dmSans(fontSize: 10, color: color.withOpacity(0.7))),
+                Text(
+                  unit,
+                  style: GoogleFonts.dmSans(
+                    fontSize: 10,
+                    color: color.withOpacity(0.7),
+                  ),
+                ),
               ],
             ),
           ],
@@ -192,8 +407,21 @@ class StudentDetailScreen extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w500)),
-            Text('${(percent * 100).toInt()}%', style: GoogleFonts.spaceMono(fontSize: 12, fontWeight: FontWeight.bold, color: color)),
+            Text(
+              label,
+              style: GoogleFonts.dmSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              '${(percent * 100).toInt()}%',
+              style: GoogleFonts.spaceMono(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 6),
@@ -212,11 +440,28 @@ class StudentDetailScreen extends StatelessWidget {
   Widget _buildWeakCard(String char, String romaji) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-      decoration: BoxDecoration(color: const Color(0xFFD94F3D).withOpacity(0.15), borderRadius: BorderRadius.circular(8), border: Border.all(color: const Color(0xFFD94F3D).withOpacity(0.3))),
+      decoration: BoxDecoration(
+        color: const Color(0xFFD94F3D).withOpacity(0.15),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFD94F3D).withOpacity(0.3)),
+      ),
       child: Column(
         children: [
-          Text(char, style: GoogleFonts.notoSerifJp(fontSize: 18, color: const Color(0xFFD94F3D), fontWeight: FontWeight.bold)),
-          Text(romaji, style: GoogleFonts.spaceMono(fontSize: 8, color: const Color(0xFFD94F3D).withOpacity(0.8))),
+          Text(
+            char,
+            style: GoogleFonts.notoSerifJp(
+              fontSize: 18,
+              color: const Color(0xFFD94F3D),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            romaji,
+            style: GoogleFonts.spaceMono(
+              fontSize: 8,
+              color: const Color(0xFFD94F3D).withOpacity(0.8),
+            ),
+          ),
         ],
       ),
     );

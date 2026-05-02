@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tanoshii_app/screens/sensei/kelas/student_monitor.dart';
 import 'package:tanoshii_app/screens/sensei/profile/profile_screen.dart';
+import 'package:tanoshii_app/screens/sensei/quiz/quiz_management_screen.dart';
 import 'home/home_screen.dart';
 
 class SenseiNavigation extends StatefulWidget {
@@ -17,7 +18,7 @@ class _SenseiNavigationState extends State<SenseiNavigation> {
   final List<Widget> _pages = [
     const SenseiHomeScreen(),
     const StudentMonitorScreen(),
-    const Center(child: Text('Halaman Kelola Kuis')),
+    const QuizManagementScreen(),
     const Center(child: Text('Halaman Pengumuman')),
     const ProfileScreen(),
   ];
