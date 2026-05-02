@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tanoshii_app/screens/sensei/announcement/announcement_screen.dart';
 import 'package:tanoshii_app/screens/sensei/kelas/student_monitor.dart';
 import 'package:tanoshii_app/screens/sensei/profile/profile_screen.dart';
 import 'package:tanoshii_app/screens/sensei/quiz/quiz_management_screen.dart';
@@ -19,7 +20,7 @@ class _SenseiNavigationState extends State<SenseiNavigation> {
     const SenseiHomeScreen(),
     const StudentMonitorScreen(),
     const QuizManagementScreen(),
-    const Center(child: Text('Halaman Pengumuman')),
+    const AnnouncementScreen(),
     const ProfileScreen(),
   ];
 

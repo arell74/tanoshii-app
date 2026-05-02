@@ -46,19 +46,8 @@ class ProfileScreen extends StatelessWidget {
                   Container(
                     width: 64,
                     height: 64,
-                    decoration: BoxDecoration(
-                      color: vermillion,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: gold, width: 2),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Z',
-                      style: GoogleFonts.dmSans(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: CircleAvatar(
+                      backgroundImage: AssetImage('assets/images/zaniii.jpeg'),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -89,7 +78,7 @@ class ProfileScreen extends StatelessWidget {
                         ),
                         // Text('Farel Fauzan', style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.bold, color: ink)),
                         Text(
-                          'farelfauzan@email.com',
+                          'zani@email.com',
                           style: GoogleFonts.dmSans(
                             fontSize: 12,
                             color: ink.withOpacity(0.6),
@@ -106,10 +95,10 @@ class ProfileScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            'Pelajar · Level 99',
+                            'Pengajar',
                             style: GoogleFonts.spaceMono(
                               fontSize: 10,
-                              color: gold,
+                              color: Colors.blueAccent,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
