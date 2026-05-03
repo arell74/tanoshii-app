@@ -1,11 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../data/flashcard_data.dart';
 import 'dart:math' as math;
 
-class FlashcardScreen extends StatelessWidget {
+class FlashcardScreen extends StatefulWidget {
+  final String moduleTitle; 
   final VoidCallback? onBack;
 
-  const FlashcardScreen({Key? key, this.onBack}) : super(key: key);
+  const FlashcardScreen({
+    Key? key, 
+    required this.moduleTitle, 
+    this.onBack,
+  }) : super(key: key);
+
+  @override
+  State<FlashcardScreen> createState() => _FlashcardScreenState();
+}
+
+class _FlashcardScreenState extends State<FlashcardScreen> {
+  int _currentIndex = 0;
+  late List<Map<String, String>> _currentCards;
+
+  @override
+  void initState() {
+    super.initState();
+    // Ambil data sesuai judul modul yang dilempar dari layar sebelumnya
+    _currentCards = flashcardDatabase[widget.moduleTitle] ?? [];
+  }
+
+  // Fungsi untuk pindah ke kartu selanjutnya
+  void _nextCard() {
+    if (_currentIndex < _currentCards.length - 1) {
+      setState(() {
+        _currentIndex++;
+      });
+    } else {
+      // Jika sudah habis, munculkan notifikasi dan kembali ke halaman sebelumnya
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Selamat! Modul ${widget.moduleTitle} Selesai! 🎉'),
+          backgroundColor: const Color(0xFF4A7C6F),
+        ),
+      );
+      if (widget.onBack != null) {
+        widget.onBack!();
+      } else {
+        Navigator.pop(context);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,6 +57,19 @@ class FlashcardScreen extends StatelessWidget {
     const Color gold = Color(0xFFC9A84C);
     const Color paper = Color(0xFFFAF7F2);
     const Color sageLight = Color(0xFF6AAB9B);
+
+    // Layar pengaman jika data modul kosong atau tidak ditemukan
+    if (_currentCards.isEmpty) {
+      return Scaffold(
+        backgroundColor: paper,
+        body: Center(
+          child: Text('Data modul ${widget.moduleTitle} belum tersedia.', style: GoogleFonts.dmSans(color: ink)),
+        ),
+      );
+    }
+
+    final currentCard = _currentCards[_currentIndex];
+    final progressValue = (_currentIndex + 1) / _currentCards.length;
 
     return Scaffold(
       backgroundColor: paper,
@@ -25,9 +81,9 @@ class FlashcardScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(18, 50, 18, 16),
             child: Row(
               children: [
-                // Tombol Back
+                // Tombol Back (Mengeksekusi onBack jika ada, jika tidak otomatis Pop)
                 InkWell(
-                  onTap: onBack,
+                  onTap: widget.onBack ?? () => Navigator.pop(context),
                   child: Container(
                     width: 32,
                     height: 32,
@@ -44,18 +100,21 @@ class FlashcardScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Hiragana — Baris あ', style: GoogleFonts.dmSans(color: paper, fontSize: 16, fontWeight: FontWeight.bold)),
+                      // Judul Dinamis berdasarkan parameter moduleTitle
+                      Text(widget.moduleTitle, style: GoogleFonts.dmSans(color: paper, fontSize: 16, fontWeight: FontWeight.bold)),
                       Text('FLASHCARD MODE', style: GoogleFonts.spaceMono(color: paper.withOpacity(0.5), fontSize: 10, letterSpacing: 1)),
                     ],
                   ),
                 ),
-                Text('7/46', style: GoogleFonts.spaceMono(color: gold, fontSize: 14, fontWeight: FontWeight.bold)),
+                // Indikator Angka Dinamis
+                Text('${_currentIndex + 1}/${_currentCards.length}', style: GoogleFonts.spaceMono(color: gold, fontSize: 14, fontWeight: FontWeight.bold)),
               ],
             ),
           ),
-          // Progress Bar Header
+          
+          // Progress Bar Header Dinamis
           LinearProgressIndicator(
-            value: 0.35,
+            value: progressValue,
             backgroundColor: ink.withOpacity(0.8),
             valueColor: const AlwaysStoppedAnimation<Color>(vermillion),
             minHeight: 3,
@@ -68,11 +127,13 @@ class FlashcardScreen extends StatelessWidget {
               child: Column(
                 children: [
                   // 1. FLASHCARD DENGAN ANIMASI FLIP
-                  const Expanded(
+                  Expanded(
                     flex: 4,
                     child: FlipCardWidget(
-                      frontChar: 'き',
-                      backRomaji: 'ki',
+                      // ValueKey memastikan status flip ter-reset setiap kali index berganti
+                      key: ValueKey<int>(_currentIndex), 
+                      frontChar: currentCard['char'] ?? '?',
+                      backRomaji: currentCard['romaji'] ?? currentCard['r'] ?? '?', 
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -87,11 +148,11 @@ class FlashcardScreen extends StatelessWidget {
                   // 3. ACTION BUTTONS
                   Row(
                     children: [
-                      Expanded(child: _buildActionButton('✗', 'Belum', const Color(0xFFFDE8E6), vermillion)),
+                      Expanded(child: _buildActionButton('✗', 'Belum', const Color(0xFFFDE8E6), vermillion, _nextCard)),
                       const SizedBox(width: 10),
-                      Expanded(child: _buildActionButton('△', 'Sulit', const Color(0xFFFEF6E0), const Color(0xFFB8860B))),
+                      Expanded(child: _buildActionButton('△', 'Sulit', const Color(0xFFFEF6E0), const Color(0xFFB8860B), _nextCard)),
                       const SizedBox(width: 10),
-                      Expanded(child: _buildActionButton('✓', 'Hafal', const Color(0xFFE6F5EE), const Color(0xFF4A7C6F))),
+                      Expanded(child: _buildActionButton('✓', 'Hafal', const Color(0xFFE6F5EE), const Color(0xFF4A7C6F), _nextCard)),
                     ],
                   )
                 ],
@@ -103,22 +164,8 @@ class FlashcardScreen extends StatelessWidget {
     );
   }
 
-  // Widget Helper: Kana Grid
+  // Widget Helper: Kana Grid Dinamis
   Widget _buildKanaGrid(Color ink, Color vermillion, Color sageLight) {
-    // Data dummy 
-    final List<Map<String, dynamic>> kanaList = [
-      {'k': 'あ', 'r': 'a', 'status': 'done'},
-      {'k': 'い', 'r': 'i', 'status': 'done'},
-      {'k': 'う', 'r': 'u', 'status': 'done'},
-      {'k': 'え', 'r': 'e', 'status': 'done'},
-      {'k': 'お', 'r': 'o', 'status': 'done'},
-      {'k': 'か', 'r': 'ka', 'status': 'done'},
-      {'k': 'き', 'r': 'ki', 'status': 'active'},
-      {'k': 'く', 'r': 'ku', 'status': 'default'},
-      {'k': 'け', 'r': 'ke', 'status': 'default'},
-      {'k': 'こ', 'r': 'ko', 'status': 'default'},
-    ];
-
     return GridView.builder(
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -127,19 +174,20 @@ class FlashcardScreen extends StatelessWidget {
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
       ),
-      itemCount: kanaList.length,
+      itemCount: _currentCards.length,
       itemBuilder: (context, index) {
-        final item = kanaList[index];
+        final item = _currentCards[index];
         Color bgColor = Colors.white;
         Color textColor = ink;
         Color romajiColor = ink.withOpacity(0.4);
 
-        if (item['status'] == 'done') {
-          bgColor = sageLight;
+        // Logika pewarnaan status grid dinamis
+        if (index < _currentIndex) {
+          bgColor = sageLight; // Status: Sudah Selesai
           textColor = Colors.white;
           romajiColor = Colors.white70;
-        } else if (item['status'] == 'active') {
-          bgColor = vermillion;
+        } else if (index == _currentIndex) {
+          bgColor = vermillion; // Status: Sedang Aktif
           textColor = Colors.white;
           romajiColor = Colors.white70;
         }
@@ -155,8 +203,8 @@ class FlashcardScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(item['k'], style: GoogleFonts.notoSerifJp(fontSize: 18, color: textColor, fontWeight: FontWeight.bold)),
-              Text(item['r'], style: GoogleFonts.spaceMono(fontSize: 10, color: romajiColor)),
+              Text(item['char'] ?? '?', style: GoogleFonts.notoSerifJp(fontSize: 18, color: textColor, fontWeight: FontWeight.bold)),
+              Text(item['romaji'] ?? item['r'] ?? '?', style: GoogleFonts.spaceMono(fontSize: 10, color: romajiColor)),
             ],
           ),
         );
@@ -164,20 +212,23 @@ class FlashcardScreen extends StatelessWidget {
     );
   }
 
-  // Widget Helper: Action Button
-  Widget _buildActionButton(String icon, String label, Color bgColor, Color textColor) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Text(icon, style: TextStyle(fontSize: 20, color: textColor, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          Text(label, style: GoogleFonts.dmSans(fontSize: 12, color: textColor, fontWeight: FontWeight.bold)),
-        ],
+  // Widget Helper: Action Button Dinamis
+  Widget _buildActionButton(String icon, String label, Color bgColor, Color textColor, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          children: [
+            Text(icon, style: TextStyle(fontSize: 20, color: textColor, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text(label, style: GoogleFonts.dmSans(fontSize: 12, color: textColor, fontWeight: FontWeight.bold)),
+          ],
+        ),
       ),
     );
   }
@@ -210,7 +261,7 @@ class _FlipCardWidgetState extends State<FlipCardWidget> with SingleTickerProvid
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400), // Durasi balikan kartu
+      duration: const Duration(milliseconds: 400), 
     );
     _animation = Tween<double>(begin: 0, end: 1).animate(_controller);
   }
@@ -238,14 +289,11 @@ class _FlipCardWidgetState extends State<FlipCardWidget> with SingleTickerProvid
       child: AnimatedBuilder(
         animation: _animation,
         builder: (context, child) {
-          // Putaran sudut (menggunakan pi dari dart:math)
           final angle = _animation.value * math.pi;
-          // Matrix 3D untuk efek kedalaman
           final transform = Matrix4.identity()
-            ..setEntry(3, 2, 0.001) // perspective
+            ..setEntry(3, 2, 0.001) 
             ..rotateY(angle);
 
-          // Cek apakah kartu sudah lewat dari 90 derajat
           final isBackVisible = angle >= (math.pi / 2);
 
           return Transform(
@@ -253,7 +301,6 @@ class _FlipCardWidgetState extends State<FlipCardWidget> with SingleTickerProvid
             alignment: Alignment.center,
             child: isBackVisible
                 ? Transform(
-                    // Harus di-rotate lagi agar tulisan belakang tidak terbalik (mirror)
                     transform: Matrix4.identity()..rotateY(math.pi),
                     alignment: Alignment.center,
                     child: _buildCardFace(isFrontFace: false),
@@ -284,7 +331,6 @@ class _FlipCardWidgetState extends State<FlipCardWidget> with SingleTickerProvid
       ),
       child: Stack(
         children: [
-          // Garis atas kartu
           Positioned(
             top: 0, left: 0, right: 0,
             child: Container(
@@ -295,7 +341,6 @@ class _FlipCardWidgetState extends State<FlipCardWidget> with SingleTickerProvid
               ),
             ),
           ),
-          // Isi Konten Kartu
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -319,7 +364,6 @@ class _FlipCardWidgetState extends State<FlipCardWidget> with SingleTickerProvid
               ],
             ),
           ),
-          // Indikator Rotate di pojok
           Positioned(
             bottom: 16, right: 16,
             child: Container(

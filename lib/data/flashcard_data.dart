@@ -1,0 +1,155 @@
+// lib/data/flashcard_data.dart
+
+final Map<String, List<Map<String, String>>> flashcardDatabase = {
+  'Hiragana': [
+    {'char': 'あ', 'romaji': 'a'},
+    {'char': 'い', 'romaji': 'i'},
+    {'char': 'う', 'romaji': 'u'},
+    {'char': 'え', 'romaji': 'e'},
+    {'char': 'お', 'romaji': 'o'},
+
+    {'char': 'か', 'romaji': 'ka'},
+    {'char': 'き', 'romaji': 'ki'},
+    {'char': 'く', 'romaji': 'ku'},
+    {'char': 'け', 'romaji': 'ke'},
+    {'char': 'こ', 'romaji': 'ko'},
+
+    {'char': 'さ', 'romaji': 'sa'},
+    {'char': 'し', 'romaji': 'shi'},
+    {'char': 'す', 'romaji': 'su'},
+    {'char': 'せ', 'romaji': 'se'},
+    {'char': 'そ', 'romaji': 'so'},
+
+    {'char': 'た', 'romaji': 'ta'},
+    {'char': 'ち', 'romaji': 'chi'},
+    {'char': 'つ', 'romaji': 'tsu'},
+    {'char': 'て', 'romaji': 'te'},
+    {'char': 'と', 'romaji': 'to'},
+
+    {'char': 'な', 'romaji': 'na'},
+    {'char': 'に', 'romaji': 'ni'},
+    {'char': 'ぬ', 'romaji': 'nu'},
+    {'char': 'ね', 'romaji': 'ne'},
+    {'char': 'の', 'romaji': 'no'},
+
+    {'char': 'は', 'romaji': 'ha'},
+    {'char': 'ひ', 'romaji': 'hi'},
+    {'char': 'ふ', 'romaji': 'fu'},
+    {'char': 'へ', 'romaji': 'he'},
+    {'char': 'ほ', 'romaji': 'ho'},
+
+    {'char': 'ま', 'romaji': 'ma'},
+    {'char': 'み', 'romaji': 'mi'},
+    {'char': 'む', 'romaji': 'mu'},
+    {'char': 'め', 'romaji': 'me'},
+    {'char': 'も', 'romaji': 'mo'},
+
+    {'char': 'や', 'romaji': 'ya'},
+    {'char': 'ゆ', 'romaji': 'yu'},
+    {'char': 'よ', 'romaji': 'yo'},
+
+    {'char': 'ら', 'romaji': 'ra'},
+    {'char': 'り', 'romaji': 'ri'},
+    {'char': 'る', 'romaji': 'ru'},
+    {'char': 'れ', 'romaji': 're'},
+    {'char': 'ろ', 'romaji': 'ro'},
+
+    {'char': 'わ', 'romaji': 'wa'},
+    {'char': 'を', 'romaji': 'wo'},
+    {'char': 'ん', 'romaji': 'n'},
+  ],
+
+  'Katakana': [
+    {'char': 'ア', 'romaji': 'a'},
+    {'char': 'イ', 'romaji': 'i'},
+    {'char': 'ウ', 'romaji': 'u'},
+    {'char': 'エ', 'romaji': 'e'},
+    {'char': 'オ', 'romaji': 'o'},
+
+    {'char': 'カ', 'romaji': 'ka'},
+    {'char': 'キ', 'romaji': 'ki'},
+    {'char': 'ク', 'romaji': 'ku'},
+    {'char': 'ケ', 'romaji': 'ke'},
+    {'char': 'コ', 'romaji': 'ko'},
+
+    {'char': 'サ', 'romaji': 'sa'},
+    {'char': 'シ', 'romaji': 'shi'},
+    {'char': 'ス', 'romaji': 'su'},
+    {'char': 'セ', 'romaji': 'se'},
+    {'char': 'ソ', 'romaji': 'so'},
+
+    {'char': 'タ', 'romaji': 'ta'},
+    {'char': 'チ', 'romaji': 'chi'},
+    {'char': 'ツ', 'romaji': 'tsu'},
+    {'char': 'テ', 'romaji': 'te'},
+    {'char': 'ト', 'romaji': 'to'},
+
+    {'char': 'ナ', 'romaji': 'na'},
+    {'char': 'ニ', 'romaji': 'ni'},
+    {'char': 'ヌ', 'romaji': 'nu'},
+    {'char': 'ネ', 'romaji': 'ne'},
+    {'char': 'ノ', 'romaji': 'no'},
+
+    {'char': 'ハ', 'romaji': 'ha'},
+    {'char': 'ヒ', 'romaji': 'hi'},
+    {'char': 'フ', 'romaji': 'fu'},
+    {'char': 'ヘ', 'romaji': 'he'},
+    {'char': 'ホ', 'romaji': 'ho'},
+
+    {'char': 'マ', 'romaji': 'ma'},
+    {'char': 'ミ', 'romaji': 'mi'},
+    {'char': 'ム', 'romaji': 'mu'},
+    {'char': 'メ', 'romaji': 'me'},
+    {'char': 'モ', 'romaji': 'mo'},
+
+    {'char': 'ヤ', 'romaji': 'ya'},
+    {'char': 'ユ', 'romaji': 'yu'},
+    {'char': 'ヨ', 'romaji': 'yo'},
+
+    {'char': 'ラ', 'romaji': 'ra'},
+    {'char': 'リ', 'romaji': 'ri'},
+    {'char': 'ル', 'romaji': 'ru'},
+    {'char': 'レ', 'romaji': 're'},
+    {'char': 'ロ', 'romaji': 'ro'},
+
+    {'char': 'ワ', 'romaji': 'wa'},
+    {'char': 'ヲ', 'romaji': 'wo'},
+    {'char': 'ン', 'romaji': 'n'},
+  ],
+
+  'Kanji_N5': [
+    {'char': '日', 'romaji': 'nichi / hi', 'meaning': 'Hari / Matahari'},
+    {'char': '月', 'romaji': 'getsu / tsuki', 'meaning': 'Bulan'},
+    {'char': '火', 'romaji': 'ka / hi', 'meaning': 'Api'},
+    {'char': '水', 'romaji': 'sui / mizu', 'meaning': 'Air'},
+    {'char': '木', 'romaji': 'moku / ki', 'meaning': 'Pohon'},
+    {'char': '金', 'romaji': 'kin / kane', 'meaning': 'Emas / Uang'},
+    {'char': '土', 'romaji': 'do / tsuchi', 'meaning': 'Tanah'},
+
+    {'char': '人', 'romaji': 'jin / hito', 'meaning': 'Orang'},
+    {'char': '女', 'romaji': 'onna', 'meaning': 'Perempuan'},
+    {'char': '男', 'romaji': 'otoko', 'meaning': 'Laki-laki'},
+    {'char': '子', 'romaji': 'ko', 'meaning': 'Anak'},
+    {'char': '学', 'romaji': 'gaku', 'meaning': 'Belajar'},
+    {'char': '先', 'romaji': 'sen', 'meaning': 'Sebelum'},
+    {'char': '生', 'romaji': 'sei / ikiru', 'meaning': 'Hidup / Lahir'},
+
+    {'char': '山', 'romaji': 'yama', 'meaning': 'Gunung'},
+    {'char': '川', 'romaji': 'kawa', 'meaning': 'Sungai'},
+    {'char': '田', 'romaji': 'ta', 'meaning': 'Sawah'},
+    {'char': '口', 'romaji': 'kuchi', 'meaning': 'Mulut'},
+    {'char': '目', 'romaji': 'me', 'meaning': 'Mata'},
+    {'char': '耳', 'romaji': 'mimi', 'meaning': 'Telinga'},
+    {'char': '手', 'romaji': 'te', 'meaning': 'Tangan'},
+    {'char': '足', 'romaji': 'ashi', 'meaning': 'Kaki'},
+
+    {'char': '犬', 'romaji': 'inu', 'meaning': 'Anjing'},
+    {'char': '猫', 'romaji': 'neko', 'meaning': 'Kucing'},
+    {'char': '魚', 'romaji': 'sakana', 'meaning': 'Ikan'},
+    {'char': '車', 'romaji': 'kuruma', 'meaning': 'Mobil'},
+    {'char': '電', 'romaji': 'den', 'meaning': 'Listrik'},
+    {'char': '本', 'romaji': 'hon', 'meaning': 'Buku'},
+    {'char': '語', 'romaji': 'go', 'meaning': 'Bahasa'},
+    {'char': '校', 'romaji': 'kou', 'meaning': 'Sekolah'},
+  ],
+};

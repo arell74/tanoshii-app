@@ -33,6 +33,7 @@ class _MainNavigationState extends State<MainNavigation> {
             _selectedIndex = 0;
           });
         },
+        moduleTitle: 'Hiragana',
       ),
       const QuizScreen(),
       const ChatBotScreen(),
