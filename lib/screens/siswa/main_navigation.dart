@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tanoshii_app/screens/siswa/progress/progress_screen.dart';
+import 'package:tanoshii_app/screens/siswa/quiz/student_quiz_screen.dart';
 import 'chat_bot/chat_bot_screen.dart';
 import 'flashcard/flashcard_screen.dart';
 import 'quiz/quiz_screen.dart';
@@ -35,7 +36,7 @@ class _MainNavigationState extends State<MainNavigation> {
         },
         moduleTitle: 'Hiragana',
       ),
-      const QuizScreen(),
+      const StudentQuizScreen(),
       const ChatBotScreen(),
       const ProgressScreen( ),
     ];
