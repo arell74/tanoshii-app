@@ -6,7 +6,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 // PASTIKAN PATH IMPORT INI BENAR SESUAI STRUKTUR FOLDERMU
 import '../../auth/login_screen.dart';
+import 'about_screen.dart';
+import 'change_password_screen.dart';
 import 'edit_profile_screen.dart';
+import 'help_center_screen.dart';
+import 'languange_screen.dart';
 
 // 1. KITA UBAH MENJADI STATEFUL WIDGET
 class ProfileScreen extends StatefulWidget {
@@ -218,7 +222,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Icons.lock_outline,
                         'Ubah Password',
                         ink,
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const ChangePasswordScreen(),
+                            ),
+                          );
+                        },
                       ),
 
                       const SizedBox(height: 24),
@@ -227,7 +239,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Icons.language,
                         'Bahasa (日本語)',
                         ink,
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LanguageScreen(),
+                            ),
+                          );
+                        },
                       ),
                       _buildListTile(
                         Icons.notifications_active_outlined,
@@ -242,13 +261,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Icons.help_outline,
                         'Pusat Bantuan',
                         ink,
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const HelpCenterScreen(),
+                            ),
+                          );
+                        },
                       ),
                       _buildListTile(
                         Icons.info_outline,
                         'Tentang NihonGo!',
                         ink,
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AboutScreen(),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
