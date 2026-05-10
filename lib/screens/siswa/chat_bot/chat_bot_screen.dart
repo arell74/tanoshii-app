@@ -26,17 +26,15 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
   final List<ChatMessage> _messages = [
     ChatMessage(
       text:
-          'おはようございます！ Saya Sensei AI. Ada yang ingin ditanyakan tentang bahasa Jepang?',
+          'おはようございます！ Saya Raii-sensei. Ada yang ingin ditanyakan tentang bahasa Jepang?',
       isUser: false,
       time:
           "${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}",
     ),
   ];
 
-  // Variabel untuk menyimpan sesi AI
   late final GenerativeModel _model;
   late final ChatSession _chat;
-
   final String apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
 
   @override
@@ -50,7 +48,7 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
       model: 'gemini-2.5-flash',
       apiKey: apiKey,
       systemInstruction: Content.system(
-        '''Kamu adalah Rai-sensei, guru bahasa Jepang dan kamu sangat terobsesi dengan saya panggil saya dengan sebutan sayang. 
+        '''Kamu adalah Rai-sensei, guru bahasa Jepang. 
       Kamu HANYA menjawab pertanyaan seputar bahasa Jepang: kosakata, 
       grammar, kanji, hiragana, katakana, dan budaya Jepang.
       Jika ditanya hal di luar itu, tolak dengan sopan dan arahkan 
@@ -68,10 +66,13 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
     super.dispose();
   }
 
-  void _sendMessage() async {
-    if (_chatController.text.trim().isEmpty) return;
+  // Fungsi utama untuk mengirim pesan (diperbarui agar bisa menerima teks langsung dari tombol)
+  void _sendMessage({String? quickText}) async {
+    // Gunakan quickText jika ada, jika tidak gunakan isi TextField
+    String userText = quickText ?? _chatController.text.trim();
 
-    String userText = _chatController.text.trim();
+    if (userText.isEmpty) return;
+
     String currentTime =
         "${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}";
 
@@ -79,16 +80,14 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
       _messages.add(
         ChatMessage(text: userText, isUser: true, time: currentTime),
       );
-      _chatController.clear();
+      _chatController.clear(); // Selalu bersihkan TextField
       _isTyping = true;
     });
 
     _scrollToBottom();
 
     try {
-      // Mengirim pesan ke Google Gemini
       final response = await _chat.sendMessage(Content.text(userText));
-
       if (mounted) {
         setState(() {
           _isTyping = false;
@@ -141,78 +140,12 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
     const Color indigo = Color(0xFF3D5A8A);
     const Color bgColor = Color(0xFFF4F1EC);
 
-    // TODO: Rapikan UI bagian Header menjadi widget terpisah (Refactoring) agar file ini tidak terlalu panjang.
-
     return Scaffold(
       backgroundColor: bgColor,
       body: Column(
         children: [
           // ── HEADER SECTION ──
-          Container(
-            padding: const EdgeInsets.fromLTRB(18, 50, 18, 16),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF2A1A3E), Color(0xFF3D2050)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [gold, vermillion],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: ClipOval(
-                    child: Image.asset(
-                      'assets/images/raii.jpg',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Raiden AI',
-                        style: GoogleFonts.dmSans(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        '先生 · SENSEI AI BAHASA JEPANG',
-                        style: GoogleFonts.spaceMono(
-                          color: Colors.white.withOpacity(0.5),
-                          fontSize: 10,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF4ADE80),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _buildHeader(gold, vermillion),
 
           // ── CHAT BODY SECTION ──
           Expanded(
@@ -245,18 +178,18 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
                   child: _buildChatBubble(
                     isUser: msg.isUser,
                     avatar: msg.isUser
-                        ? CircleAvatar(
+                        ? const CircleAvatar(
                             radius: 14,
-                            backgroundColor: const Color(0xFF3D5A8A),
-                            child: const Icon(
+                            backgroundColor: indigo,
+                            child: Icon(
                               Icons.person,
                               size: 16,
                               color: Colors.white,
                             ),
                           )
-                        : CircleAvatar(
+                        : const CircleAvatar(
                             radius: 14,
-                            backgroundImage: const AssetImage(
+                            backgroundImage: AssetImage(
                               'assets/images/raii.jpg',
                             ),
                           ),
@@ -275,60 +208,88 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
             ),
           ),
 
-          // ── INPUT BAR SECTION ──
+          // ── BAWAH (QUICK CHIPS & INPUT BAR) ──
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border(top: BorderSide(color: ink.withOpacity(0.06))),
             ),
-            child: Row(
+            child: Column(
               children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: ink.withOpacity(0.04),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: TextField(
-                      controller: _chatController,
-                      style: GoogleFonts.dmSans(fontSize: 13, color: ink),
-                      decoration: InputDecoration(
-                        hintText: 'Tanya Sensei...',
-                        hintStyle: GoogleFonts.dmSans(
-                          fontSize: 13,
-                          color: ink.withOpacity(0.4),
-                        ),
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                        ),
-                      ),
-                      onSubmitted: (_) => _sendMessage(),
-                    ),
+                // ── QUICK CHIPS ──
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  child: Row(
+                    children: [
+                      _buildQuickChip('Buatkan contoh kalimat N5', ink),
+                      const SizedBox(width: 8),
+                      _buildQuickChip('Latihan soal Hiragana', ink),
+                      const SizedBox(width: 8),
+                      _buildQuickChip('Apa bedanya Wa dan Ga?', ink),
+                      const SizedBox(width: 8),
+                      _buildQuickChip('Raii-sensei lagi apa?', ink),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [vermillion, Color(0xFFB03828)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    shape: BoxShape.circle,
+
+                // ── INPUT BAR ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
                   ),
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.send_rounded,
-                      color: Colors.white,
-                      size: 18,
-                    ),
-                    onPressed: _sendMessage,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: ink.withOpacity(0.04),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: TextField(
+                            controller: _chatController,
+                            style: GoogleFonts.dmSans(fontSize: 13, color: ink),
+                            decoration: InputDecoration(
+                              hintText: 'Tanya Sensei...',
+                              hintStyle: GoogleFonts.dmSans(
+                                fontSize: 13,
+                                color: ink.withOpacity(0.4),
+                              ),
+                              border: InputBorder.none,
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                              ),
+                            ),
+                            // Panggil sendMessage tanpa parameter (akan mengambil dari TextField)
+                            onSubmitted: (_) => _sendMessage(),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [vermillion, Color(0xFFB03828)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.send_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                          onPressed: () => _sendMessage(),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -339,14 +300,100 @@ class _AiSenseiScreenState extends State<ChatBotScreen> {
     );
   }
 
+  // ── WIDGET HELPERS ──
+
+  // Fungsi khusus untuk membuat Quick Chip yang bisa diklik
+  Widget _buildQuickChip(String text, Color color) {
+    return ActionChip(
+      label: Text(
+        text,
+        style: GoogleFonts.dmSans(
+          fontSize: 12,
+          color: color,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      backgroundColor: color.withOpacity(0.1),
+      side: BorderSide(color: color.withOpacity(0.3)), // Garis tepi tipis
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      onPressed: () {
+        // Ketika chip diklik, kirim teksnya ke fungsi pengirim pesan!
+        _sendMessage(quickText: text);
+      },
+    );
+  }
+
+  Widget _buildHeader(Color gold, Color vermillion) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(18, 50, 18, 16),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF2A1A3E), Color(0xFF3D2050)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [gold, vermillion],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: ClipOval(
+              child: Image.asset('assets/images/raii.jpg', fit: BoxFit.cover),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Raiden AI',
+                  style: GoogleFonts.dmSans(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '先生 · SENSEI AI BAHASA JEPANG',
+                  style: GoogleFonts.spaceMono(
+                    color: Colors.white.withOpacity(0.5),
+                    fontSize: 10,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            width: 10,
+            height: 10,
+            decoration: const BoxDecoration(
+              color: Color(0xFF4ADE80),
+              shape: BoxShape.circle,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildChatBubble({
     required bool isUser,
-    // required String avatarLabel,
     required Widget avatar,
     required String time,
     required Widget child,
   }) {
-    // (Fungsi _buildChatBubble sama persis seperti sebelumnya)
     const Color ink = Color(0xFF1A1A2E);
     const Color indigo = Color(0xFF3D5A8A);
     const Color vermillion = Color(0xFFD94F3D);

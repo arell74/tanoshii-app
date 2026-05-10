@@ -69,7 +69,6 @@ class _ProgressScreenState extends State<ProgressScreen> {
             photoUrl = snapshot.data?['photoUrl'] ?? '';
           }
 
-          // Fallback UI-Avatar jika user belum punya foto
           final String finalAvatarUrl = photoUrl.isNotEmpty
               ? photoUrl
               : 'https://ui-avatars.com/api/?name=${displayName.replaceAll(' ', '+')}&background=${gold.value.toRadixString(16).substring(2)}&color=fff';

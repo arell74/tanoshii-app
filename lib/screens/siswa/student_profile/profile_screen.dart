@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../auth/login_screen.dart';
-import 'about_screen.dart';
-import 'change_password_screen.dart';
-import 'edit_profile_screen.dart';
-import 'help_center_screen.dart';
-import 'languange_screen.dart';
+import '../../profile/about_screen.dart';
+import '../../profile/change_password_screen.dart';
+import '../../profile/edit_profile_screen.dart';
+import '../../profile/help_center_screen.dart';
+import '../../profile/languange_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -77,8 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: paper,
       body: SafeArea(
         child: FutureBuilder<Map<String, String>>(
-          future:
-              _profileFuture,
+          future: _profileFuture,
           builder: (context, snapshot) {
             final bool isLoading =
                 snapshot.connectionState == ConnectionState.waiting;
@@ -319,7 +318,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         content: const Text('Apakah yakin ingin keluar dari akun ini?'),
         actions: [
           CupertinoDialogAction(
-            child: const Text('Batal'),
+            child: const Text('Batal', style: TextStyle(color: Colors.blue)),
             onPressed: () => Navigator.pop(context),
           ),
           CupertinoDialogAction(
