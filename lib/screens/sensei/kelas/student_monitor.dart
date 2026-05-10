@@ -1,6 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import 'student_detail_screen.dart';
 
 class StudentMonitorScreen extends StatefulWidget {
@@ -11,13 +11,26 @@ class StudentMonitorScreen extends StatefulWidget {
 }
 
 class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
-  String _selectedFilter = 'SEMUA'; // Filter aktif: SEMUA, PERLU BANTUAN, TOP
+  String _selectedFilter = 'SEMUA';
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Color _getProgressColor(int accuracy) {
+    if (accuracy >= 80) return const Color(0xFFC9A84C); // Gold
+    if (accuracy >= 50) return const Color(0xFF4A7C6F); // Sage
+    return const Color(0xFFD94F3D); // Vermillion
+  }
 
   @override
   Widget build(BuildContext context) {
     const Color indigo = Color(0xFF3D5A8A);
     const Color vermillion = Color(0xFFD94F3D);
-    const Color sage = Color(0xFF4A7C6F);
     const Color gold = Color(0xFFC9A84C);
     const Color bgColor = Color(0xFFF5F4F0);
 
@@ -34,7 +47,7 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Daftar Siswa',
+                    'Monitor Siswa',
                     style: GoogleFonts.dmSans(
                       color: Colors.white,
                       fontSize: 20,
@@ -42,7 +55,6 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  // Search Box
                   Container(
                     height: 40,
                     decoration: BoxDecoration(
@@ -50,21 +62,37 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: TextField(
+                      controller: _searchController,
+                      onChanged: (value) =>
+                          setState(() => _searchQuery = value),
                       style: GoogleFonts.dmSans(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: 'Cari nama siswa...',
                         hintStyle: GoogleFonts.dmSans(
                           color: Colors.white60,
-                          fontSize: 15,
+                          fontSize: 14,
                         ),
                         prefixIcon: const Icon(
                           Icons.search,
                           color: Colors.white60,
                           size: 20,
                         ),
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(
+                                  Icons.clear,
+                                  color: Colors.white60,
+                                  size: 18,
+                                ),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() => _searchQuery = '');
+                                },
+                              )
+                            : null,
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
-                          vertical: 12,
+                          vertical: 10,
                         ),
                       ),
                     ),
@@ -88,22 +116,74 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
               ),
             ),
 
-            // ── LIST SISWA ──
+            // ── LIST SISWA DARI FIREBASE ──
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  _buildStudentCard('Raiden Eii', 84, sage, 'R'),
-                  _buildStudentCard(
-                    'Zani',
-                    28,
-                    vermillion,
-                    'z',
-                    isWarning: true,
-                  ),
-                  _buildStudentCard('Hiyukii', 61, sage, 'H'),
-                  _buildStudentCard('Haimiya Mio', 91, gold, 'HM', isTop: true),
-                ],
+              child: StreamBuilder<QuerySnapshot>(
+                // Query: Ambil user yang role-nya adalah 'siswa'
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .where('role', isEqualTo: 'Pelajar')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return const Center(child: Text('Terjadi kesalahan data.'));
+                  }
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: indigo),
+                    );
+                  }
+
+                  // Ambil data dokumen dan filter berdasarkan search query & tab
+                  var docs = snapshot.data!.docs.where((doc) {
+                    var data = doc.data() as Map<String, dynamic>;
+                    String name = data['name'] ?? '';
+                    int accuracy = data['accuracy'] ?? 0;
+
+                    bool matchesSearch = name.toLowerCase().contains(
+                      _searchQuery.toLowerCase(),
+                    );
+                    bool matchesFilter = true;
+                    if (_selectedFilter == 'PERLU BANTUAN')
+                      matchesFilter = accuracy < 50;
+                    if (_selectedFilter == 'TOP')
+                      matchesFilter = accuracy >= 90;
+
+                    return matchesSearch && matchesFilter;
+                  }).toList();
+
+                  if (docs.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'Tidak ada siswa yang ditemukan.',
+                        style: GoogleFonts.dmSans(color: Colors.grey),
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: docs.length,
+                    itemBuilder: (context, index) {
+                      var data = docs[index].data() as Map<String, dynamic>;
+                      String name = data['name'] ?? 'Pelajar';
+                      int accuracy = data['accuracy'] ?? 0;
+                      String initial = name.isNotEmpty
+                          ? name[0].toUpperCase()
+                          : '?';
+
+                      return _buildStudentCard(
+                        name,
+                        accuracy,
+                        _getProgressColor(accuracy),
+                        initial,
+                        isWarning: accuracy < 50,
+                        isTop: accuracy >= 90,
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],
@@ -119,11 +199,7 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: isActive
-              ? color
-              : const Color(
-                  0xFFECEAE4,
-                ), // Sesuai warna background abu wireframe[cite: 1]
+          color: isActive ? color : const Color(0xFFECEAE4),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
@@ -148,7 +224,6 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
   }) {
     return GestureDetector(
       onTap: () {
-        // Navigasi ke halaman detail saat di-klik
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -171,7 +246,6 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
         ),
         child: Row(
           children: [
-            // Avatar
             Container(
               width: 44,
               height: 44,
@@ -190,8 +264,6 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
               ),
             ),
             const SizedBox(width: 14),
-
-            // Nama & Progress Bar
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,7 +277,6 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  // Custom Progress Bar Mini[cite: 1]
                   Container(
                     height: 6,
                     decoration: BoxDecoration(
@@ -214,9 +285,7 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
                     ),
                     child: FractionallySizedBox(
                       alignment: Alignment.centerLeft,
-                      widthFactor:
-                          accuracy /
-                          100, // Menyesuaikan lebar bar dengan akurasi
+                      widthFactor: accuracy / 100,
                       child: Container(
                         decoration: BoxDecoration(
                           color: progressColor,
@@ -229,37 +298,13 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
               ),
             ),
             const SizedBox(width: 14),
-
-            // Akurasi & Badge
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 if (isWarning)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Colors.red.withOpacity(0.3)),
-                    ),
-                    child: const Text('⚠️', style: TextStyle(fontSize: 10)),
-                  )
+                  const Text('⚠️', style: TextStyle(fontSize: 12))
                 else if (isTop)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.amber.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Colors.amber.withOpacity(0.3)),
-                    ),
-                    child: const Text('🏆', style: TextStyle(fontSize: 10)),
-                  ),
+                  const Text('🏆', style: TextStyle(fontSize: 12)),
                 const SizedBox(height: 4),
                 Text(
                   '$accuracy%',

@@ -24,6 +24,7 @@ class TanohsiiApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: "Nihonggo APP",
       theme: AppTheme.lightTheme,
       home: StreamBuilder<User?>(

@@ -25,6 +25,10 @@ class AuthService {
         'name': name,
         'email': email,
         'role': role,
+        'photoUrl': '',
+        'accuracy': 0, // Default pengguna baru
+        'xp': 0, // Default pengguna baru
+        'streak': 0,
         'createdAt': FieldValue.serverTimestamp(),
       });
     }

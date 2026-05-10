@@ -20,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final AuthService _authService = AuthService();
   bool _isLoading = false;
   bool isLogin = true;
+  bool _isObscure = true;
   String selectedRole = 'Pelajar'; // Default role
 
   @override
@@ -291,7 +292,7 @@ class _LoginScreenState extends State<LoginScreen> {
     IconData icon,
     Color ink, {
     bool isPassword = false,
-    required TextEditingController controller, // Tambahkan parameter ini
+    required TextEditingController controller,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -300,8 +301,11 @@ class _LoginScreenState extends State<LoginScreen> {
         border: Border.all(color: ink.withOpacity(0.1)),
       ),
       child: TextField(
-        controller: controller, // Pasang controller di sini
-        obscureText: isPassword,
+        controller: controller,
+
+        // INI YANG DIUBAH
+        obscureText: isPassword ? _isObscure : false,
+
         style: GoogleFonts.dmSans(color: ink),
         decoration: InputDecoration(
           hintText: hint,
@@ -309,7 +313,26 @@ class _LoginScreenState extends State<LoginScreen> {
             color: ink.withOpacity(0.4),
             fontSize: 14,
           ),
+
           prefixIcon: Icon(icon, color: ink.withOpacity(0.4), size: 20),
+
+          // ICON MATA
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    _isObscure
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    color: ink.withOpacity(0.4),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isObscure = !_isObscure;
+                    });
+                  },
+                )
+              : null,
+
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 16),
         ),
