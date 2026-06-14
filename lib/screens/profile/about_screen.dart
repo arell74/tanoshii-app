@@ -47,7 +47,7 @@ class AboutScreen extends StatelessWidget {
 
             // ── NAMA & VERSI ──
             Text(
-              'NihonGo!',
+              'Tanoshii-app',
               style: GoogleFonts.dmSans(color: ink, fontSize: 28, fontWeight: FontWeight.bold, letterSpacing: -0.5),
             ),
             const SizedBox(height: 4),

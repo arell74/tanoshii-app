@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'student_detail_screen.dart';
@@ -118,68 +119,117 @@ class _StudentMonitorScreenState extends State<StudentMonitorScreen> {
 
             // ── LIST SISWA DARI FIREBASE ──
             Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                // Query: Ambil user yang role-nya adalah 'siswa'
-                stream: FirebaseFirestore.instance
+              child: FutureBuilder<DocumentSnapshot>(
+                // 1. Ambil data Sensei yang sedang login saat ini
+                future: FirebaseFirestore.instance
                     .collection('users')
-                    .where('role', isEqualTo: 'Pelajar')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return const Center(child: Text('Terjadi kesalahan data.'));
-                  }
-
-                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    .doc(FirebaseAuth.instance.currentUser?.uid)
+                    .get(),
+                builder: (context, senseiSnapshot) {
+                  if (senseiSnapshot.connectionState ==
+                      ConnectionState.waiting) {
                     return const Center(
                       child: CircularProgressIndicator(color: indigo),
                     );
                   }
 
-                  // Ambil data dokumen dan filter berdasarkan search query & tab
-                  var docs = snapshot.data!.docs.where((doc) {
-                    var data = doc.data() as Map<String, dynamic>;
-                    String name = data['name'] ?? '';
-                    int accuracy = data['accuracy'] ?? 0;
-
-                    bool matchesSearch = name.toLowerCase().contains(
-                      _searchQuery.toLowerCase(),
-                    );
-                    bool matchesFilter = true;
-                    if (_selectedFilter == 'PERLU BANTUAN')
-                      matchesFilter = accuracy < 50;
-                    if (_selectedFilter == 'TOP')
-                      matchesFilter = accuracy >= 90;
-
-                    return matchesSearch && matchesFilter;
-                  }).toList();
-
-                  if (docs.isEmpty) {
+                  if (!senseiSnapshot.hasData || !senseiSnapshot.data!.exists) {
                     return Center(
                       child: Text(
-                        'Tidak ada siswa yang ditemukan.',
+                        'Gagal memuat data institusi Sensei.',
                         style: GoogleFonts.dmSans(color: Colors.grey),
                       ),
                     );
                   }
 
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: docs.length,
-                    itemBuilder: (context, index) {
-                      var data = docs[index].data() as Map<String, dynamic>;
-                      String name = data['name'] ?? 'Pelajar';
-                      int accuracy = data['accuracy'] ?? 0;
-                      String initial = name.isNotEmpty
-                          ? name[0].toUpperCase()
-                          : '?';
+                  // 2. Ekstrak domain Sensei dari database
+                  var senseiData =
+                      senseiSnapshot.data!.data() as Map<String, dynamic>;
+                  String senseiDomain = senseiData['akademiDomain'] ?? '';
 
-                      return _buildStudentCard(
-                        name,
-                        accuracy,
-                        _getProgressColor(accuracy),
-                        initial,
-                        isWarning: accuracy < 50,
-                        isTop: accuracy >= 90,
+                  // 3. Panggil daftar siswa dengan Double-Filter!
+                  return StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .where(
+                          'role',
+                          isEqualTo: 'Pelajar Akademi',
+                        ) // 👈 Hanya siswa resmi
+                        .where(
+                          'akademiDomain',
+                          isEqualTo: senseiDomain,
+                        ) // 👈 Hanya dari LPK yang sama
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return const Center(
+                          child: Text('Terjadi kesalahan data.'),
+                        );
+                      }
+
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(color: indigo),
+                        );
+                      }
+
+                      var docs = snapshot.data!.docs.where((doc) {
+                        var data = doc.data() as Map<String, dynamic>;
+                        String name = data['name'] ?? 'Pelajar';
+                        int accuracy = data['accuracy'] ?? 0;
+
+                        bool matchesSearch = name.toLowerCase().contains(
+                          _searchQuery.toLowerCase(),
+                        );
+                        bool matchesFilter = true;
+
+                        if (_selectedFilter == 'PERLU BANTUAN')
+                          matchesFilter = accuracy < 50;
+                        if (_selectedFilter == 'TOP')
+                          matchesFilter = accuracy >= 90;
+
+                        return matchesSearch && matchesFilter;
+                      }).toList();
+
+                      if (docs.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text('🍃', style: TextStyle(fontSize: 40)),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Belum ada siswa di $senseiDomain',
+                                style: GoogleFonts.dmSans(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: docs.length,
+                        itemBuilder: (context, index) {
+                          var data = docs[index].data() as Map<String, dynamic>;
+                          String name = data['name'] ?? 'Pelajar';
+                          int accuracy = data['accuracy'] ?? 0;
+                          String initial = name.isNotEmpty
+                              ? name[0].toUpperCase()
+                              : '?';
+
+                          return _buildStudentCard(
+                            name,
+                            accuracy,
+                            _getProgressColor(accuracy),
+                            initial,
+                            isWarning: accuracy < 50,
+                            isTop: accuracy >= 90,
+                          );
+                        },
                       );
                     },
                   );

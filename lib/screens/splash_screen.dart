@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tanoshii_app/screens/auth/login_screen.dart';
 import 'siswa/main_navigation.dart';
-import '../theme/app_theme.dart'; 
+import '../theme/app_theme.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -35,7 +35,7 @@ class SplashScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              
+
               // 2. Logo Utama "語"
               Container(
                 width: 72,
@@ -77,10 +77,12 @@ class SplashScreen extends StatelessWidget {
                     letterSpacing: 2,
                   ),
                   children: [
-                    const TextSpan(text: 'Nihon'),
+                    const TextSpan(text: 'Tanoshii-'),
                     TextSpan(
-                      text: 'Go!',
-                      style: TextStyle(color: gold), // Efek gradasi teks bisa disesuaikan nanti
+                      text: 'App',
+                      style: TextStyle(
+                        color: gold,
+                      ), // Efek gradasi teks bisa disesuaikan nanti
                     ),
                   ],
                 ),
@@ -109,7 +111,7 @@ class SplashScreen extends StatelessWidget {
                   _buildCharBox('漢', paper),
                 ],
               ),
-              
+
               const Spacer(),
 
               // 5. Tombol dan Teks Login
@@ -119,12 +121,17 @@ class SplashScreen extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     // MaterialPageRoute(builder: (context) => const MainNavigation()),
-                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: vermillion,
-                  padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 48,
+                    vertical: 16,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -182,10 +189,7 @@ class SplashScreen extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         char,
-        style: GoogleFonts.notoSerifJp(
-          fontSize: 20,
-          color: paperColor,
-        ),
+        style: GoogleFonts.notoSerifJp(fontSize: 20, color: paperColor),
       ),
     );
   }

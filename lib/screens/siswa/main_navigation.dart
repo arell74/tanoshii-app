@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tanoshii_app/screens/siswa/flashcard/sub_modul.dart';
 import 'package:tanoshii_app/screens/siswa/progress/progress_screen.dart';
 import 'package:tanoshii_app/screens/siswa/quiz/student_quiz_screen.dart';
 import 'chat_bot/chat_bot_screen.dart';
 import 'flashcard/flashcard_screen.dart';
-import 'quiz/quiz_screen.dart';
 import 'home/home_screen.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -28,14 +28,7 @@ class _MainNavigationState extends State<MainNavigation> {
     final List<Widget> pages = [
       const HomeScreen(),
       
-      FlashcardScreen(
-        onBack: () {
-          setState(() {
-            _selectedIndex = 0;
-          });
-        },
-        moduleTitle: 'Hiragana',
-      ),
+      const SubModuleScreen(category: 'Hiragana'),
       const StudentQuizScreen(),
       const ChatBotScreen(),
       const ProgressScreen( ),

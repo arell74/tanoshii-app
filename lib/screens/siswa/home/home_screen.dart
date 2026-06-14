@@ -1,11 +1,14 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:tanoshii_app/screens/siswa/chat_bot/chat_bot_screen.dart';
+import 'package:tanoshii_app/screens/siswa/flashcard/sub_modul.dart';
 import '../flashcard/flashcard_screen.dart';
 import '../student_profile/profile_screen.dart';
 
@@ -13,29 +16,27 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   // ── 1. FUNGSI PENGAMBIL DATA ──
-  Future<Map<String, String>> _getUserProfile() async {
+  Future<Map<String, dynamic>> _getUserProfile() async {
     try {
       User? currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {
-        DocumentSnapshot doc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUser.uid)
-            .get();
+        DocumentSnapshot doc = await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).get();
 
         if (doc.exists && doc.data() != null) {
           var data = doc.data() as Map<String, dynamic>;
           return {
             'name': data['name'] ?? 'Siswa',
             'photoUrl': data.containsKey('photoUrl') ? data['photoUrl'] : '',
+            // Ambil field lastActivity dari Firestore
+            'lastActivity': data.containsKey('lastActivity') ? data['lastActivity'] : null, 
           };
         }
       }
     } catch (e) {
-      debugPrint("Error mengambil profil: $e");
+      debugPrint("Error: $e");
     }
-    return {'name': 'Siswa', 'photoUrl': ''};
+    return {'name': 'Siswa', 'photoUrl': '', 'lastActivity': null};
   }
-
   Map<String, String> _getKanjiOfTheDay() {
     final List<Map<String, String>> kanjiList = [
       {'char': '猫', 'romaji': 'Neko', 'meaning': 'Kucing', 'stroke': '11'},
@@ -52,7 +53,7 @@ class HomeScreen extends StatelessWidget {
 
   // ── 2. FUNGSI BUILD UTAMA (Jauh lebih bersih!) ──
   @override
-  Widget build(BuildContext context) {
+ Widget build(BuildContext context) {
     const Color ink = Color(0xFF1A1A2E);
     const Color inkSoft = Color(0xFF2D2D4A);
     const Color vermillion = Color(0xFFD94F3D);
@@ -62,31 +63,41 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: paper,
-      body: Column(
-        children: [
-          // Panggil helper Header
-          _buildHeader(context, ink, inkSoft, gold),
+      // FUTURE BUILDER DIPINDAH KE SINI (Membungkus seluruh layar)
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: _getUserProfile(),
+        builder: (context, snapshot) {
+          // 1. Ambil datanya di sini
+          final userData = snapshot.data;
+          final lastActivity = userData?['lastActivity'];
 
-          // Panggil helper Body
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(20),
-              children: [
-                _buildSectionLabel('Lanjutkan', ink),
-                _buildContinueCard(context),
-                const SizedBox(height: 24),
+          return Column(
+            children: [
+              // 2. Kirim userData ke Header
+              _buildHeader(context, ink, inkSoft, gold, vermillion, userData),
+              
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(20),
+                  children: [
+                    _buildSectionLabel('Lanjutkan', ink),
+                    // 3. Sekarang lastActivity berhasil dikenali!
+                    _buildContinueCard(context, lastActivity),
+                    const SizedBox(height: 24),
 
-                _buildSectionLabel('Modul Belajar', ink),
-                _buildModulesGrid(context, vermillion, gold),
-                const SizedBox(height: 24),
+                    _buildSectionLabel('Modul Belajar', ink),
+                    _buildModulesGrid(context, vermillion, gold),
+                    const SizedBox(height: 24),
 
-                _buildSectionLabel('Karakter Hari Ini', ink),
-                _buildKanjiCard(kanjiData, ink, gold),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
-        ],
+                    _buildSectionLabel('Karakter Hari Ini', ink),
+                    _buildKanjiCard(kanjiData, ink, gold),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -94,12 +105,20 @@ class HomeScreen extends StatelessWidget {
   // ── 3. KUMPULAN WIDGET HELPER ──
 
   // Helper: Header Section
-  Widget _buildHeader(
-    BuildContext context,
-    Color ink,
-    Color inkSoft,
-    Color gold,
-  ) {
+  // Tambahan parameter Map<String, dynamic>? userData di dalam kurung ini
+  Widget _buildHeader(BuildContext context, Color ink, Color inkSoft, Color gold, Color vermillion, Map<String, dynamic>? userData) {
+    String displayName = 'Memuat...';
+    String imageUrl = '';
+    String initial = '?';
+
+    // Olah data jika sudah tidak null (loading selesai)
+    if (userData != null) {
+      String fullName = userData['name'] ?? 'Siswa';
+      displayName = fullName.split(' ')[0];
+      imageUrl = userData['photoUrl'] ?? '';
+      initial = fullName.isNotEmpty ? fullName[0].toUpperCase() : '?';
+    }
+
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
       decoration: BoxDecoration(
@@ -113,273 +132,352 @@ class HomeScreen extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
       ),
-      child: FutureBuilder<Map<String, String>>(
-        future: _getUserProfile(),
-        builder: (context, snapshot) {
-          String displayName = 'Memuat...';
-          String imageUrl = '';
-          String initial = '?';
-
-          if (snapshot.connectionState == ConnectionState.done) {
-            String fullName = snapshot.data?['name'] ?? 'Siswa';
-            displayName = fullName.split(' ')[0];
-            imageUrl = snapshot.data?['photoUrl'] ?? '';
-            initial = fullName.isNotEmpty ? fullName[0].toUpperCase() : '?';
-          }
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Top Row (Teks Sapaan & Foto Profil)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'おはようございます',
-                        style: GoogleFonts.spaceMono(
-                          color: Colors.white54,
-                          fontSize: 10,
-                        ),
+                  Text('おはようございます', style: GoogleFonts.spaceMono(color: Colors.white54, fontSize: 10)),
+                  Text('Halo, $displayName 👋', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              Row(
+                children: [
+                  _buildNotificationBell(vermillion),
+                  const SizedBox(width: 12),
+                  InkWell(
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen())),
+                    borderRadius: BorderRadius.circular(50),
+                    child: Container(
+                      width: 46, height: 46,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white.withOpacity(0.2), width: 2),
                       ),
-                      Text(
-                        'Halo, $displayName 👋',
-                        style: GoogleFonts.dmSans(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      _buildNotificationBell(
-                        gold,
-                      ), // Memanggil fungsi lonceng notifikasi
-                      const SizedBox(width: 12),
-                      InkWell(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ProfileScreen(),
-                          ),
-                        ),
-                        borderRadius: BorderRadius.circular(50),
-                        child: Container(
-                          width: 46,
-                          height: 46,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.2),
-                              width: 2,
-                            ),
-                          ),
-                          alignment: Alignment.center,
-                          child:
-                              snapshot.connectionState ==
-                                  ConnectionState.waiting
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : (imageUrl.isNotEmpty)
+                      alignment: Alignment.center,
+                      child: userData == null
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : (imageUrl.isNotEmpty)
                               ? ClipOval(
                                   child: Image.network(
-                                    imageUrl,
-                                    width: 46,
-                                    height: 46,
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) => Text(
-                                          initial,
-                                          style: GoogleFonts.dmSans(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
-                                        ),
+                                    imageUrl, width: 46, height: 46, fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) => Text(initial, style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
                                   ),
                                 )
-                              : Text(
-                                  initial,
-                                  style: GoogleFonts.dmSans(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ],
+                              : Text(initial, style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+            ],
+          ),
+          const SizedBox(height: 20),
+          
+          // Streak Bar
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: gold.withOpacity(0.12),
+              border: Border.all(color: gold.withOpacity(0.2)),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                const Text('🔥', style: TextStyle(fontSize: 18)),
+                const SizedBox(width: 8),
+                Text('Streak Harian', style: GoogleFonts.dmSans(color: gold, fontWeight: FontWeight.bold, fontSize: 12)),
+                const Spacer(),
+                Text('7 hari', style: GoogleFonts.spaceMono(color: gold, fontWeight: FontWeight.bold, fontSize: 14)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          
+          // XP Bar
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('XP 999 / 1000', style: GoogleFonts.spaceMono(color: Colors.white54, fontSize: 10)),
+              Text('Level 3 · N5', style: GoogleFonts.spaceMono(color: Colors.white54, fontSize: 10)),
+            ],
+          ),
+          const SizedBox(height: 6),
+          LinearProgressIndicator(
+            value: 0.69,
+            backgroundColor: Colors.white.withOpacity(0.1),
+            // valueColor: const AlwaysStoppedAnimation<Color>(gold),
+            valueColor: AlwaysStoppedAnimation<Color>(gold),
+            minHeight: 5,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ],
+      ),
+    );
+  }
+  // ── WIDGET BARU: POP-UP LIQUID GLASS NOTIFIKASI ──
+  void _showGlassNotification(BuildContext context) {
+    const Color ink = Color(0xFF1A1A2E);
+    const Color purple = Color(0xFF7C4F8A);
 
-              // Streak Bar
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
+    showDialog(
+      context: context,
+      barrierColor: ink.withOpacity(0.4), // Latar belakang meredup
+      builder: (context) {
+        return Dialog(
+          backgroundColor:
+              Colors.transparent, // Wajib transparan agar kacanya terlihat
+          elevation: 0,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: 16,
+                sigmaY: 16,
+              ), // Efek Blur Kaca
+              child: Container(
+                constraints: const BoxConstraints(maxHeight: 400),
+                padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: gold.withOpacity(0.12),
-                  border: Border.all(color: gold.withOpacity(0.2)),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  children: [
-                    const Text('🔥', style: TextStyle(fontSize: 18)),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Streak Harian',
-                      style: GoogleFonts.dmSans(
-                        color: gold,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
+                  // Efek Liquid / Pantulan Cahaya Kaca
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.white.withOpacity(0.5),
+                      Colors.white.withOpacity(0.2),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.6),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 20,
+                      spreadRadius: -5,
                     ),
-                    const Spacer(),
-                    Text(
-                      '7 hari',
-                      style: GoogleFonts.spaceMono(
-                        color: gold,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // ── HEADER POP-UP ──
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: purple.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.campaign_rounded,
+                                color: purple,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Pengumuman',
+                              style: GoogleFonts.dmSans(
+                                color: ink,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded, color: ink),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    const Divider(color: Colors.black12),
+                    const SizedBox(height: 12),
+
+                    // ── ISI PENGUMUMAN DARI FIREBASE ──
+                    Flexible(
+                      child: StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('announcements')
+                            .orderBy('timestamp', descending: true)
+                            .limit(
+                              5,
+                            ) // Ambil 5 terbaru saja agar tidak kepanjangan
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Padding(
+                              padding: EdgeInsets.all(20),
+                              child: CircularProgressIndicator(color: purple),
+                            );
+                          }
+
+                          if (!snapshot.hasData ||
+                              snapshot.data!.docs.isEmpty) {
+                            return Text(
+                              'Belum ada pengumuman dari Sensei.',
+                              style: GoogleFonts.dmSans(
+                                color: ink.withOpacity(0.6),
+                              ),
+                            );
+                          }
+
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: snapshot.data!.docs.length,
+                            itemBuilder: (context, index) {
+                              var data =
+                                  snapshot.data!.docs[index].data()
+                                      as Map<String, dynamic>;
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(
+                                    0.6,
+                                  ), // Kaca lapisan kedua
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.8),
+                                  ),
+                                ),
+                                child: Text(
+                                  data['message'] ?? '',
+                                  style: GoogleFonts.dmSans(
+                                    color: ink,
+                                    fontSize: 14,
+                                    height: 1.5,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
-
-              // XP Bar
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'XP 999 / 1000',
-                    style: GoogleFonts.spaceMono(
-                      color: Colors.white54,
-                      fontSize: 10,
-                    ),
-                  ),
-                  Text(
-                    'Level 3 · N5',
-                    style: GoogleFonts.spaceMono(
-                      color: Colors.white54,
-                      fontSize: 10,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              LinearProgressIndicator(
-                value: 0.69,
-                backgroundColor: Colors.white.withOpacity(0.1),
-                valueColor: AlwaysStoppedAnimation<Color>(gold),
-                minHeight: 5,
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ],
-          );
-        },
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 
   // Helper: Kartu Lanjutkan Belajar
-  Widget _buildContinueCard(BuildContext context) {
+  Widget _buildContinueCard(BuildContext context, Map<String, dynamic>? lastActivity) {
+  const Color ink = Color(0xFF1A1A2E);
+  const Color vermillion = Color(0xFFD94F3D);
+
+  // 1. JIKA BELUM ADA RIWAYAT BELAJAR (USER BARU)
+  if (lastActivity == null || lastActivity.isEmpty) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        // Arahkan ke SubModule Hiragana sebagai awalan default
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const SubModuleScreen(category: 'Hiragana')));
+      },
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF3D5A8A), Color(0xFF2A4A6E)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: Colors.white,
+          border: Border.all(color: ink.withOpacity(0.1)),
           borderRadius: BorderRadius.circular(18),
         ),
-        child: Stack(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Positioned(
-              right: -10,
-              bottom: -20,
-              child: Text(
-                'あ',
-                style: GoogleFonts.notoSerifJp(
-                  fontSize: 80,
-                  color: Colors.white.withOpacity(0.07),
-                  height: 1,
-                ),
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'SEDANG DIPELAJARI',
-                  style: GoogleFonts.spaceMono(
-                    color: Colors.white60,
-                    fontSize: 10,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Hiragana Baris き・さ',
-                  style: GoogleFonts.dmSans(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                LinearProgressIndicator(
-                  value: 0.4,
-                  backgroundColor: Colors.white.withOpacity(0.15),
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    Color(0xFFE8CC7E),
-                  ),
-                  minHeight: 4,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '▶ LANJUTKAN → 12/46',
-                  style: GoogleFonts.spaceMono(
-                    color: const Color(0xFFE8CC7E),
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
+            Text('MULAI PERJALANANMU', style: GoogleFonts.spaceMono(color: ink.withOpacity(0.5), fontSize: 10)),
+            const SizedBox(height: 4),
+            Text('Mulai Belajar Hiragana', style: GoogleFonts.dmSans(color: ink, fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text('Ayo kuasai huruf dasar bahasa Jepang!', style: GoogleFonts.dmSans(color: ink.withOpacity(0.7), fontSize: 12)),
           ],
         ),
       ),
     );
   }
 
+  // 2. JIKA SUDAH ADA RIWAYAT BELAJAR
+  // Ekstrak data dari Firebase
+  String category = lastActivity['category'] ?? 'Hiragana';
+  String title = lastActivity['title'] ?? 'Belum ada judul';
+  int progress = lastActivity['progress'] ?? 0;
+  int total = lastActivity['total'] ?? 10;
+  
+  // Hitung persentase untuk progress bar (0.0 sampai 1.0)
+  double progressValue = total > 0 ? (progress / total) : 0.0;
+
+  return GestureDetector(
+    onTap: () {
+      // Ketika diklik, arahkan ke daftar level kategori tersebut
+      Navigator.push(context, MaterialPageRoute(builder: (context) => SubModuleScreen(category: category)));
+    },
+    child: Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF3D5A8A), Color(0xFF2A4A6E)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -10,
+            bottom: -20,
+            child: Text(
+              category == 'Hiragana' ? 'あ' : (category == 'Katakana' ? 'ア' : '字'),
+              style: GoogleFonts.notoSerifJp(fontSize: 80, color: Colors.white.withOpacity(0.07), height: 1),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('SEDANG DIPELAJARI', style: GoogleFonts.spaceMono(color: Colors.white60, fontSize: 10)),
+              const SizedBox(height: 4),
+              Text('$category $title', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              LinearProgressIndicator(
+                value: progressValue,
+                backgroundColor: Colors.white.withOpacity(0.15),
+                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFE8CC7E)),
+                minHeight: 4,
+                borderRadius: BorderRadius.circular(2),
+              ),
+              const SizedBox(height: 8),
+              Text('▶ LANJUTKAN → $progress/$total', style: GoogleFonts.spaceMono(color: const Color(0xFFE8CC7E), fontSize: 10)),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
   // ── WIDGET BARU: LONCENG NOTIFIKASI ──
   Widget _buildNotificationBell(Color badgeColor) {
     return StreamBuilder<QuerySnapshot>(
-      // Kita memantau koleksi 'announcements'. Gunakan limit(1) agar hemat kuota baca Firebase.
       stream: FirebaseFirestore.instance
           .collection('announcements')
           .limit(1)
           .snapshots(),
       builder: (context, snapshot) {
-        // Logika sederhana: Jika ada dokumen di dalam koleksi, anggap ada pengumuman baru (munculkan titik merah)
         bool hasNewAnnouncement = false;
         if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
           hasNewAnnouncement = true;
@@ -402,15 +500,11 @@ class HomeScreen extends StatelessWidget {
                   size: 22,
                 ),
                 onPressed: () {
-                  // TODO: Navigasi ke halaman detail notifikasi siswa (bisa dibuat nanti)
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Buka halaman notifikasi...')),
-                  );
+                  _showGlassNotification(context);
                 },
               ),
             ),
 
-            // Titik Merah (Badge) menggunakan Stack & Positioned
             if (hasNewAnnouncement)
               Positioned(
                 top: 8,
@@ -419,12 +513,12 @@ class HomeScreen extends StatelessWidget {
                   width: 10,
                   height: 10,
                   decoration: BoxDecoration(
-                    color: badgeColor, // Warna merah (Vermillion)
+                    color: badgeColor,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: const Color(0xFF1A1A2E),
                       width: 1.5,
-                    ), // Garis luar agar menyatu dengan background
+                    ),
                   ),
                 ),
               ),
@@ -447,13 +541,15 @@ class HomeScreen extends StatelessWidget {
                 '46 karakter',
                 const Color(0xFFFDE0DC),
                 vermillion,
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const FlashcardScreen(moduleTitle: 'Hiragana'),
-                  ),
-                ),
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          const SubModuleScreen(category: 'Hiragana'),
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(width: 12),
@@ -468,7 +564,7 @@ class HomeScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        const FlashcardScreen(moduleTitle: 'Katakana'),
+                        const SubModuleScreen(category: 'Katakana'),
                   ),
                 ),
               ),
@@ -489,7 +585,7 @@ class HomeScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        const FlashcardScreen(moduleTitle: 'Kanji_N5'),
+                        const SubModuleScreen(category: 'Kanji_N5'),
                   ),
                 ),
               ),

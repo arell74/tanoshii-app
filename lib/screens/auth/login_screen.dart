@@ -4,7 +4,6 @@ import 'package:tanoshii_app/services/auth_service.dart';
 import '../sensei/main_navigation.dart';
 import '../siswa/main_navigation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import '../sensei_navigation.dart'; // Nanti kita buat file ini
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -21,7 +20,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   bool isLogin = true;
   bool _isObscure = true;
-  String selectedRole = 'Pelajar'; // Default role
 
   @override
   void dispose() {
@@ -50,12 +48,18 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         // Proses Register
         await _authService.registerUser(
-          _emailController.text.trim(),
-          _passwordController.text.trim(),
-          selectedRole, // Mengambil nilai dari dropdown role
-          _nameController.text.trim(),
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+          name: _nameController.text.trim(),
         );
-        _navigateBasedOnRole(selectedRole);
+
+        final user = FirebaseAuth.instance.currentUser;
+
+        if (user != null) {
+          String actualRole = await _authService.getUserRole(user.uid);
+
+          _navigateBasedOnRole(actualRole);
+        }
       }
     } catch (e) {
       ScaffoldMessenger.of(
@@ -67,15 +71,16 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _navigateBasedOnRole(String role) {
-    if (role.contains('Pelajar')) {
+    // Lebih ketat dan aman: Hanya Sensei yang boleh masuk ke SenseiNavigation
+    if (role == 'Sensei') {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const MainNavigation()),
+        MaterialPageRoute(builder: (context) => const SenseiNavigation()),
       );
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const SenseiNavigation()),
+        MaterialPageRoute(builder: (context) => const MainNavigation()),
       );
     }
   }
@@ -135,45 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 40),
 
               // Role Selector (Dummy untuk presentasi)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: ink.withOpacity(0.1)),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: selectedRole,
-                    isExpanded: true,
-                    icon: Icon(
-                      Icons.keyboard_arrow_down,
-                      color: ink.withOpacity(0.5),
-                    ),
-                    style: GoogleFonts.dmSans(
-                      fontSize: 14,
-                      color: ink,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedRole = newValue!;
-                      });
-                    },
-                    items: <String>['Pelajar', 'Sensei (Pengajar)']
-                        .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text('Masuk sebagai: $value'),
-                          );
-                        })
-                        .toList(),
-                  ),
-                ),
-              ),
+              //
               const SizedBox(height: 16),
 
               // Form Inputs

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'widgets/action_card.dart';
 
 class SenseiHomeScreen extends StatelessWidget {
   const SenseiHomeScreen({Key? key}) : super(key: key);
@@ -226,26 +227,10 @@ class SenseiHomeScreen extends StatelessWidget {
                         mainAxisSpacing: 12,
                         childAspectRatio: 1.5,
                         children: [
-                          _buildActionCard(
-                            'Pantau Kelas',
-                            Icons.analytics_rounded,
-                            indigo,
-                          ),
-                          _buildActionCard(
-                            'Buat Kuis',
-                            Icons.edit_document,
-                            vermillion,
-                          ),
-                          _buildActionCard(
-                            'Pengumuman',
-                            Icons.campaign_rounded,
-                            purple,
-                          ),
-                          _buildActionCard(
-                            'Leaderboard',
-                            Icons.emoji_events_rounded,
-                            sage,
-                          ),
+                          ActionCard(title: 'Pantau Kelas', icon: Icons.analytics_rounded, color: indigo),
+                          ActionCard(title: 'Buat Kuis', icon: Icons.edit_document, color: vermillion),
+                          ActionCard(title: 'Pengumuman', icon: Icons.campaign_rounded, color: purple),
+                          ActionCard(title: 'Leaderboard', icon: Icons.emoji_events_rounded, color: sage),
                         ],
                       ),
                       const SizedBox(height: 28),
@@ -322,41 +307,6 @@ class SenseiHomeScreen extends StatelessWidget {
   }
 
   // Helper Widget: Action Card 2x2
-  Widget _buildActionCard(String title, IconData icon, Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        border: Border.all(color: color.withOpacity(0.2)),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () {}, // TODO: Hubungkan ke tab navigasi yang sesuai
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: color, size: 24),
-                const SizedBox(height: 8),
-                Text(
-                  title,
-                  style: GoogleFonts.dmSans(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   // Helper Widget: Activity Tile
   Widget _buildActivityTile(String title, String time, Color iconColor) {
@@ -399,3 +349,5 @@ class SenseiHomeScreen extends StatelessWidget {
     );
   }
 }
+
+

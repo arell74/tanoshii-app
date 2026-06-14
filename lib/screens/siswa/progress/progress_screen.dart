@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tanoshii_app/screens/siswa/student_profile/profile_screen.dart';
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({Key? key}) : super(key: key);
@@ -137,19 +138,30 @@ class _ProgressScreenState extends State<ProgressScreen> {
                                   ),
                                 ),
                               )
-                            : ClipOval(
-                                child: Image.network(
-                                  finalAvatarUrl,
-                                  fit: BoxFit.cover,
-                                  // JIKA GAGAL LOAD DARI INTERNET, PAKAI FOTO BORUTO!
-                                  errorBuilder: (context, error, stackTrace) {
-                                    // Ini akan nge-print alasan pastinya ke Debug Console!
-                                    debugPrint("ALASAN GAMBAR GAGAL: $error");
-                                    return Image.asset(
-                                      'assets/images/boruto.jpeg',
-                                      fit: BoxFit.cover,
-                                    );
-                                  },
+                            : InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ProfileScreen(),
+                                    ),
+                                  );
+                                },
+                                borderRadius: BorderRadius.circular(50),
+                                child: ClipOval(
+                                  child: Image.network(
+                                    finalAvatarUrl,
+                                    fit: BoxFit.cover,
+                                    // JIKA GAGAL LOAD DARI INTERNET, PAKAI FOTO BORUTO!
+                                    errorBuilder: (context, error, stackTrace) {
+                                      // Ini akan nge-print alasan pastinya ke Debug Console!
+                                      debugPrint("ALASAN GAMBAR GAGAL: $error");
+                                      return Image.asset(
+                                        'assets/images/boruto.jpeg',
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                       ),
