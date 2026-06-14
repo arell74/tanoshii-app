@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -21,25 +22,31 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Menyimpan pengumuman baru ke koleksi 'announcements'
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      final senseiDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      final senseiDomain = senseiDoc.data()?['akademiDomain'] ?? '';
+
       await FirebaseFirestore.instance.collection('announcements').add({
         'message': message,
+        'akademiDomain': senseiDomain,
+        'senderId': user.uid,
         'timestamp': FieldValue.serverTimestamp(),
-        // Catatan: Untuk fitur "dibaca" dan "diterima" yang 100% akurat butuh logika database
-        // yang lumayan panjang. Untuk UI saat ini, kita beri nilai default dulu.
         'receivedCount': 0,
         'readCount': 0,
       });
 
       _broadcastController.clear();
-      FocusScope.of(context).unfocus(); // Tutup keyboard
+      FocusScope.of(context).unfocus();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text(
-              'Pengumuman berhasil dikirim ke seluruh kelas!',
-            ),
+            content: const Text('Pengumuman berhasil dikirim ke LPK Anda!'),
             backgroundColor: const Color(0xFF7C4F8A),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -256,129 +263,163 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                   const SizedBox(height: 12),
 
                   Expanded(
-                    child: StreamBuilder<QuerySnapshot>(
-                      // Mengambil data dari Firestore dan diurutkan dari yang terbaru
-                      stream: FirebaseFirestore.instance
-                          .collection('announcements')
-                          .orderBy('timestamp', descending: true)
-                          .snapshots(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError)
-                          return const Center(
-                            child: Text('Terjadi kesalahan data.'),
-                          );
-                        if (snapshot.connectionState == ConnectionState.waiting)
+                    child: FutureBuilder<DocumentSnapshot>(
+                      // Cari tahu dulu domain Sensei ini
+                      future: FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(FirebaseAuth.instance.currentUser?.uid)
+                          .get(),
+                      builder: (context, senseiSnapshot) {
+                        if (senseiSnapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return const Center(
                             child: CircularProgressIndicator(color: purple),
                           );
-
-                        final docs = snapshot.data!.docs;
-
-                        if (docs.isEmpty) {
-                          return Center(
-                            child: Text(
-                              'Belum ada pengumuman.',
-                              style: GoogleFonts.dmSans(color: Colors.grey),
-                            ),
-                          );
                         }
 
-                        return ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          itemCount: docs.length,
-                          itemBuilder: (context, index) {
-                            final data =
-                                docs[index].data() as Map<String, dynamic>;
-                            final message = data['message'] ?? '';
-                            final timestamp = data['timestamp'] as Timestamp?;
-                            final receivedCount = data['receivedCount'] ?? 0;
-                            final readCount = data['readCount'] ?? 0;
+                        // Ekstrak domainnya
+                        String senseiDomain = '';
+                        if (senseiSnapshot.hasData &&
+                            senseiSnapshot.data!.exists) {
+                          var data =
+                              senseiSnapshot.data!.data()
+                                  as Map<String, dynamic>;
+                          senseiDomain = data['akademiDomain'] ?? '';
+                        }
 
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Colors.grey.withOpacity(0.2),
+                        // Panggil riwayat yang khusus untuk domain ini
+                        return StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('announcements')
+                              .where(
+                                'akademiDomain',
+                                isEqualTo: senseiDomain,
+                              ) // 👈 FILTER DOMAIN
+                              .orderBy('timestamp', descending: true)
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasError)
+                              return const Center(
+                                child: Text('Terjadi kesalahan data.'),
+                              );
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting)
+                              return const Center(
+                                child: CircularProgressIndicator(color: purple),
+                              );
+
+                            final docs = snapshot.data!.docs;
+
+                            if (docs.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  'Belum ada pengumuman di LPK ini.',
+                                  style: GoogleFonts.dmSans(color: Colors.grey),
                                 ),
+                              );
+                            }
+
+                            return ListView.builder(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
+                              itemCount: docs.length,
+                              itemBuilder: (context, index) {
+                                final data =
+                                    docs[index].data() as Map<String, dynamic>;
+                                final message = data['message'] ?? '';
+                                final timestamp =
+                                    data['timestamp'] as Timestamp?;
+                                final receivedCount =
+                                    data['receivedCount'] ?? 0;
+                                final readCount = data['readCount'] ?? 0;
+
+                                return Container(
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Colors.grey.withOpacity(0.2),
+                                    ),
+                                  ),
+                                  child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        child: Text(
-                                          message,
-                                          style: GoogleFonts.dmSans(
-                                            fontSize: 13,
-                                            color: const Color(0xFF1A1A2E),
-                                            height: 1.5,
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              message,
+                                              style: GoogleFonts.dmSans(
+                                                fontSize: 13,
+                                                color: const Color(0xFF1A1A2E),
+                                                height: 1.5,
+                                              ),
+                                            ),
                                           ),
-                                        ),
+                                          const SizedBox(width: 12),
+                                          Text(
+                                            _formatTime(timestamp),
+                                            style: GoogleFonts.spaceMono(
+                                              fontSize: 10,
+                                              color: Colors.grey[500],
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      const SizedBox(width: 12),
-                                      Text(
-                                        _formatTime(timestamp),
-                                        style: GoogleFonts.spaceMono(
-                                          fontSize: 10,
-                                          color: Colors.grey[500],
-                                        ),
+                                      const SizedBox(height: 12),
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: indigo.withOpacity(0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              '✓ $receivedCount diterima',
+                                              style: GoogleFonts.spaceMono(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                                color: indigo,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: gold.withOpacity(0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              '👁 $readCount dibaca',
+                                              style: GoogleFonts.spaceMono(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                                color: gold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 12),
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: indigo.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          '✓ $receivedCount diterima',
-                                          style: GoogleFonts.spaceMono(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            color: indigo,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: gold.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          '👁 $readCount dibaca',
-                                          style: GoogleFonts.spaceMono(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            color: gold,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                );
+                              },
                             );
                           },
                         );
