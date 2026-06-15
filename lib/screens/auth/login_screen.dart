@@ -130,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               Text(
                 isLogin
-                    ? 'Masuk untuk melanjutkan progres belajarmu.'
+                    ? 'Masuk untuk melanjutkan progres belajarmu. \nAkun Academy diisi sesuai kredensial!'
                     : 'Buat akun untuk melacak progres belajar.',
                 style: GoogleFonts.spaceMono(
                   fontSize: 12,

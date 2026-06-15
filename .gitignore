@@ -50,3 +50,4 @@ ios/Runner/GoogleService-Info.plist
 macos/Runner/GoogleService-Info.plist
 
 .env
+assets/service-account.json

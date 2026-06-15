@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../services/notification_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AnnouncementScreen extends StatefulWidget {
   const AnnouncementScreen({Key? key}) : super(key: key);
@@ -12,6 +14,7 @@ class AnnouncementScreen extends StatefulWidget {
 
 class _AnnouncementScreenState extends State<AnnouncementScreen> {
   final TextEditingController _broadcastController = TextEditingController();
+  // static const String _fcmServerKey = 'GANTI_DENGAN_FCM_SERVER_KEY_KAMU';
   bool _isLoading = false;
 
   // Fungsi untuk mengirim data ke Firestore
@@ -39,6 +42,13 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
         'receivedCount': 0,
         'readCount': 0,
       });
+
+      // Tembak Push Notifikasi menggunakan v1 API
+      await NotificationService.sendToAkademi(
+        akademiDomain: senseiDomain,
+        message: message,
+        projectId: dotenv.env['PROJECT_ID'] ?? '',
+      );
 
       _broadcastController.clear();
       FocusScope.of(context).unfocus();

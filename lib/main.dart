@@ -8,6 +8,7 @@ import 'screens/sensei/main_navigation.dart';
 import 'screens/siswa/main_navigation.dart';
 import 'services/auth_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +16,7 @@ void main() async {
   await dotenv.load(fileName: ".env");
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await NotificationService.initialize();
   runApp(const TanohsiiApp());
 }
 

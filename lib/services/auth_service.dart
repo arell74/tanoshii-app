@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -38,7 +39,7 @@ class AuthService {
     return {'role': 'Pelajar', 'domain': ''}; 
   }
 
-  // ── FUNGSI REGISTER (Diperbarui tanpa parameter role manual) ──
+ // ── FUNGSI REGISTER (Diperbarui tanpa parameter role manual) ──
   Future<void> registerUser({
     required String name,
     required String email,
@@ -58,6 +59,7 @@ class AuthService {
         final actualRole = roleData['role']!;
         final actualDomain = roleData['domain']!;
 
+        // 3. Buat dokumen user di database
         await _db.collection('users').doc(user.uid).set({
           'uid': user.uid,
           'name': name.trim(),
@@ -70,6 +72,18 @@ class AuthService {
           'streak': 0,
           'createdAt': FieldValue.serverTimestamp(),
         });
+
+        try {
+          final fcmToken = await FirebaseMessaging.instance.getToken();
+          if (fcmToken != null) {
+            await _db.collection('users').doc(user.uid).update({
+              'fcmToken': fcmToken,
+            });
+          }
+        } catch (e) {
+          debugPrint('Gagal simpan FCM token saat register: $e');
+        }
+        // ──────────────────────────────────────
       }
     } catch (e) {
       throw Exception('Gagal mendaftar: $e');
@@ -79,10 +93,26 @@ class AuthService {
   // Fungsi Login
   Future<User?> loginUser(String email, String password) async {
     UserCredential result = await _auth.signInWithEmailAndPassword(
-      email: email,
+      email: email.trim(), // Tambahkan trim() agar lebih aman dari spasi nyasar
       password: password,
     );
-    return result.user;
+    
+    User? user = result.user;
+
+    if (user != null) {
+      try {
+        final fcmToken = await FirebaseMessaging.instance.getToken();
+        if (fcmToken != null) {
+          await _db.collection('users').doc(user.uid).update({
+            'fcmToken': fcmToken,
+          });
+        }
+      } catch (e) {
+        debugPrint('Gagal perbarui FCM token saat login: $e');
+      }
+    }
+    
+    return user;
   }
 
   // Ambil Data Role Pengguna
@@ -95,7 +125,7 @@ class AuthService {
     } catch (e) {
       print("Error fetching role: $e");
     }
-    return 'Pelajar'; // Nilai default yang aman
+    return 'Pelajar';
   }
 
   // Logout
